@@ -1,0 +1,23 @@
+---
+
+daemon:
+  interval: 5s
+logging:
+  file: ./yaml-runner-go.log
+  quiet: true
+  level: error
+  json: true
+facts:
+  - name: apacheIsRunning
+    command: "curl --connect-timeout 1 -s http://localhost:80/; echo $?;"
+  - name: loadAverage1
+    command: "uptime | awk '{ print $9; }' | cut -d\\. -f1"
+actions:
+  - command: "echo \"Stopping apache\""
+    rules:
+      - "[[ ${loadAverage1} -gt 15 ]]"
+      - "[[ ${apacheIsRunning} -eq 0 ]]"
+  - command: "echo \"Starting apache\""
+    rules:
+      - "[[ ${loadAverage1} -lt 15 ]]"
+      - "[[ ${apacheIsRunning} -ne 0 ]]"
