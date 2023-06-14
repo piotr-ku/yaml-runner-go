@@ -27,6 +27,60 @@ To get more information about a specific command, use the following syntax:
 
 `yaml-runner-go [command] --help`
 
+## Configuration
+
+The YAML configuration file allows you to define the rules, actions, and command execution settings for YAML Runner Go. Here's the structure and syntax of the configuration file:
+
+```yaml
+daemon:
+  interval: 5s
+logging:
+  file: ./yaml-runner-go.log
+  quiet: false
+  level: debug
+  json: false
+facts:
+  - name: apacheIsRunning
+    command: "curl --connect-timeout 1 -s http://localhost:80/; echo $?;"
+  - name: loadAverage1
+    command: "[[ -e /proc/loadavg ]] && awk '{print $(NF-2)}' /proc/loadavg | cut -d. -f1 || sysctl -n vm.loadavg | awk '{print $2}' | cut -d, -f1"
+actions:
+  - command: "echo \"Stopping apache\""
+    rules:
+      - "[[ ${loadAverage1} -gt 15 ]]"
+      - "[[ ${apacheIsRunning} -eq 0 ]]"
+  - command: "echo \"Starting apache\""
+    rules:
+      - "[[ ${loadAverage1} -lt 15 ]]"
+      - "[[ ${apacheIsRunning} -ne 0 ]]"
+```
+
+### Structure
+
+The configuration file consists of the following sections:
+
+- **daemon**: Defines the settings for the YAML Runner Go daemon, including the interval at which the actions should be executed. The interval value should be specified in a valid duration format (e.g., "5s" for 5 seconds).
+
+- **logging**: Specifies the logging settings for the application. It includes the log file path, whether to enable quiet mode (suppressing non-error log messages), the log level (e.g., "debug", "info", "warn"), and whether to format log output in JSON.
+
+- **facts**: Describes the facts or variables that can be used in the rules section. Each fact has a unique name and a command associated with it. The command will be executed to obtain the value of the fact.
+
+- **actions**: Defines the actions to be executed based on the specified rules. Each action consists of a command to be executed when the rules evaluate to true. The rules are expressed using boolean expressions that can reference the facts defined earlier.
+
+### Syntax
+
+- **Key-Value Pairs**: The configuration file is structured using key-value pairs. Each key is followed by a colon, and the associated value is indented below it.
+
+- **Lists**: Lists are represented using a hyphen followed by a space ("- "). In the configuration file, the `facts` and `actions` sections are represented as lists.
+
+- **Command Execution**: Command execution is defined by providing the command to be executed as a string value under the `command` key.
+
+- **Rules**: Rules are expressed as boolean expressions using square brackets. The expressions can reference the facts by using the `${factName}` syntax.
+
+Ensure that the configuration file follows the proper YAML syntax and indentation rules for accurate parsing by YAML Runner Go.
+
+Use this configuration file as a template and modify it according to your specific requirements.
+
 ## Use Cases
 
 YAML Runner Go can be useful in various scenarios where you need to automate command execution based on a YAML file configuration. Here are some possible use cases:
