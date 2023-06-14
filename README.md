@@ -2,6 +2,66 @@
 
 YAML Runner Go is an application that executes commands based on the rules defined in a YAML file. It provides the flexibility to run commands either once or as a daemon at specific intervals.
 
+## Installation
+
+To install YAML Runner Go from sources, including any dependencies or system requirements, please follow these clear instructions:
+
+### Prerequisites
+
+Before installing YAML Runner Go from sources, ensure that you have the following prerequisites:
+
+1. Go Programming Language: Ensure that you have Go installed on your system. You can download and install Go from the official Go website: [https://golang.org/](https://golang.org/). Follow the installation instructions specific to your operating system.
+
+### Installation Steps
+
+Follow these steps to install YAML Runner Go from sources:
+
+1. Open a terminal or command prompt.
+
+2. Clone the YAML Runner Go repository from GitHub using the `git clone` command:
+
+   ```shell
+   git clone https://github.com/piotr-ku/yaml-runner-go.git
+   ```
+
+   This command will clone the YAML Runner Go repository to your local machine.
+
+3. Change into the cloned repository directory:
+
+   ```shell
+   cd yaml-runner-go
+   ```
+
+4. Use the `go build` command to build the YAML Runner Go executable:
+
+   ```shell
+   go build .
+   ```
+
+   This command will compile the source code and generate the YAML Runner Go executable.
+
+5. (Optional) If you want to install the YAML Runner Go executable system-wide, you can use the `go install` command:
+
+   ```shell
+   go install .
+   ```
+
+   This command will build and install the YAML Runner Go executable to the Go bin directory, allowing you to run it from anywhere in the terminal.
+
+### Dependencies
+
+YAML Runner Go, being a standard Go application, manages its dependencies using Go modules. When you build the application using the `go build` or `go install` command, Go automatically downloads and installs the required dependencies specified in the Go.mod and Go.sum files.
+
+There is no need for manual installation or management of dependencies.
+
+### System Requirements
+
+YAML Runner Go should be compatible with most major operating systems, including Windows, macOS, and Linux. It relies on the Go programming language's cross-platform support.
+
+Ensure that your system meets the minimum requirements for installing and running Go. Refer to the Go documentation for specific system requirements based on your operating system.
+
+By following these installation instructions, you should be able to install YAML Runner Go from sources, including any necessary dependencies, and start using it to execute commands based on YAML configuration files.
+
 ## Usage
 
 `yaml-runner-go [command]`
