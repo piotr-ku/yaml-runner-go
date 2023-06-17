@@ -176,10 +176,11 @@ func TestParseYamlWithValidInput(t *testing.T) {
         facts:
           - name: fact1
             command: cmd1
+            shell: /bin/bash
         actions:
-          - name: action1
+          - command: cmd1
             rules: []
-            command: cmd1
+            shell: /bin/bash
     `)
 
 	// when: We call the parseYaml function with the valid input to get the result.
@@ -190,8 +191,8 @@ func TestParseYamlWithValidInput(t *testing.T) {
 		t.Errorf("expected no error, but got %v", err)
 	}
 	expectedConfig := Config{
-		Facts:   []Fact{{Name: "fact1", Command: "cmd1"}},
-		Actions: []Action{{Rules: []string{}, Command: "cmd1"}},
+		Facts:   []Fact{{Name: "fact1", Command: "cmd1", Shell: "/bin/bash"}},
+		Actions: []Action{{Rules: []string{}, Command: "cmd1", Shell: "/bin/bash"}},
 	}
 	if !reflect.DeepEqual(config, expectedConfig) {
 		t.Errorf("unexpected result:\n%+v\nexpected:\n%+v", config, expectedConfig)

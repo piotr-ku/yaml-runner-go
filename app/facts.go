@@ -13,9 +13,15 @@ func gatherFacts(facts []Fact) Facts {
 	gatheredFacts := Facts{}
 
 	for _, fact := range facts {
-		// execute command
+		// create command
 		c := system.NewCommand(fact.Command)
+		// set shell
+		if fact.Shell != "" {
+			c.Shell = fact.Shell
+		}
+		// execute command
 		c.Execute()
+		// log
 		LogFactGathered(fact, c)
 
 		// save fact value to the temporary storage
