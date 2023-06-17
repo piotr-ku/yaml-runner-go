@@ -67,7 +67,7 @@ func TestCommand(t *testing.T) {
 		Error   error
 	}{
 		{Command: "echo test", Rc: 0, Stdout: "test", Stderr: "", Error: nil},
-		{Command: "command_not_found", Rc: 127, Stdout: "", Stderr: "/bin/sh: command_not_found: command not found", Error: errors.New("exit status 127")},
+		{Command: "command_not_found", Rc: 127, Stdout: "", Stderr: "/bin/bash: command_not_found: command not found", Error: errors.New("exit status 127")},
 		{Command: "echo test 1>&2", Rc: 0, Stdout: "", Stderr: "test", Error: nil},
 		{Command: "exit 1", Rc: 1, Stdout: "", Stderr: "", Error: errors.New("exit status 1")},
 	}
@@ -75,6 +75,7 @@ func TestCommand(t *testing.T) {
 	for _, test := range tests {
 		// run command
 		cmd := NewCommand(test.Command)
+		cmd.Shell = "/bin/bash"
 		cmd.Execute()
 
 		// Verify expected return code
