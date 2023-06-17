@@ -81,7 +81,7 @@ By following these installation instructions, you should be able to install YAML
 * --interval string: Sets the interval for the daemon
 * --json: Enables JSON formatting for the output
 * --log string: Enables logging to a file
---quiet: Enables quiet mode
+* --quiet: Enables quiet mode
 
 To get more information about a specific command, use the following syntax:
 
