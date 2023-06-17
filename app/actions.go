@@ -8,8 +8,15 @@ func executeActions(actions []Action, facts Facts) {
 		// check action rules
 		if checkActionRules(action, facts) {
 			c := system.NewCommand(action.Command)
+			// set facts as environment variables
 			c.Environment = facts
+			// set shell
+			if action.Shell != "" {
+				c.Shell = action.Shell
+			}
+			// execute command
 			c.Execute()
+			// log
 			logActionExecuted(action, &c)
 		}
 	}

@@ -8,11 +8,16 @@ logging:
   level: error
   json: true
 facts:
+  - name: shellTest
+    command: "echo $0"
+    shell: "/bin/zsh"
   - name: apacheIsRunning
     command: "curl --connect-timeout 1 -s http://localhost:80/; echo $?;"
   - name: loadAverage1
     command: "uptime | awk '{ print $9; }' | cut -d\\. -f1"
 actions:
+  - command: "echo $0"
+    shell: "/bin/zsh"
   - command: "echo \"Stopping apache\""
     rules:
       - "[[ ${loadAverage1} -gt 15 ]]"

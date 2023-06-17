@@ -104,15 +104,18 @@ facts:
     command: "curl --connect-timeout 1 -s http://localhost:80/; echo $?;"
   - name: loadAverage1
     command: "[[ -e /proc/loadavg ]] && awk '{print $(NF-2)}' /proc/loadavg | cut -d. -f1 || sysctl -n vm.loadavg | awk '{print $2}' | cut -d, -f1"
+    shell: /bin/bash
 actions:
   - command: "echo \"Stopping apache\""
     rules:
       - "[[ ${loadAverage1} -gt 15 ]]"
       - "[[ ${apacheIsRunning} -eq 0 ]]"
+    shell: /bin/bash
   - command: "echo \"Starting apache\""
     rules:
       - "[[ ${loadAverage1} -lt 15 ]]"
       - "[[ ${apacheIsRunning} -ne 0 ]]"
+    shell: /bin/bash
 ```
 
 ### Structure
