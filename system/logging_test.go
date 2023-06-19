@@ -45,7 +45,7 @@ func TestLogTargets(test *testing.T) {
 
 	for _, t := range tests {
 		// logging init
-		LogInit(LogConfig{File: t.file, Quiet: t.quiet, Json: false, Level: t.level})
+		LogInit(LogConfig{File: t.file, Quiet: t.quiet, JSON: false, Level: t.level})
 		// get targets
 		targets := logTargets(t.level)
 		// check number of targets
@@ -59,7 +59,7 @@ func TestLogTargets(test *testing.T) {
 func TestLogTextHandler(t *testing.T) {
 	for _, level := range []string{"debug", "info", "warn", "error"} {
 		// log buffering, text format
-		LogInit(LogConfig{File: "testing_buffer", Quiet: false, Json: false})
+		LogInit(LogConfig{File: "testing_buffer", Quiet: false, JSON: false})
 
 		// log
 		Log(level, "logging test", "field1", 41)
@@ -92,7 +92,7 @@ func TestLogJSONHandler(t *testing.T) {
 		}
 
 		// log buffering, JSON format
-		LogInit(LogConfig{File: "testing_buffer", Quiet: false, Json: true})
+		LogInit(LogConfig{File: "testing_buffer", Quiet: false, JSON: true})
 
 		// log
 		Log(level, "logging test", "field1", 41)
@@ -192,7 +192,7 @@ func TestSet(t *testing.T) {
 func TestSave(t *testing.T) {
 	for _, level := range []string{"debug", "info", "warn", "error"} {
 		// log buffering, text format
-		LogInit(LogConfig{File: "testing_buffer", Quiet: false, Json: false})
+		LogInit(LogConfig{File: "testing_buffer", Quiet: false, JSON: false})
 
 		// Log
 		message := "Test message"

@@ -21,7 +21,7 @@ var oneshotCmd = &cobra.Command{
 			Logging: system.LogConfig{
 				File:  LogFile,
 				Quiet: QuietMode,
-				Json:  LogJSON,
+				JSON:  LogJSON,
 				Level: level,
 			},
 		}

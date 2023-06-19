@@ -30,7 +30,7 @@ func Run(configFile string, configArgs Config) Config {
 		Logging: system.LogConfig{
 			File:  "",
 			Quiet: false,
-			Json:  false,
+			JSON:  false,
 			Level: "info",
 		},
 	}
@@ -49,7 +49,7 @@ func Run(configFile string, configArgs Config) Config {
 	system.LogInit(system.LogConfig{
 		File:  config.Logging.File,
 		Quiet: config.Logging.Quiet,
-		Json:  config.Logging.Json,
+		JSON:  config.Logging.JSON,
 		Level: config.Logging.Level,
 	})
 

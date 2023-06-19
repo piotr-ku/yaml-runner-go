@@ -44,7 +44,7 @@ type Fact struct {
 	Shell   string // fact shell
 }
 
-// Format provides a data format for the actions defined
+// Action format provides a data format for the actions defined
 // in the configuration file.
 type Action struct {
 	Command string   `validate:"required"` // action command
@@ -84,8 +84,8 @@ func (c *Config) Merge(m Config) {
 	if m.Logging.Quiet {
 		c.Logging.Quiet = m.Logging.Quiet
 	}
-	if m.Logging.Json {
-		c.Logging.Json = m.Logging.Json
+	if m.Logging.JSON {
+		c.Logging.JSON = m.Logging.JSON
 	}
 
 	// Merge Facts

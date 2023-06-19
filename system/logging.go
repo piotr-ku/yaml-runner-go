@@ -9,11 +9,12 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+// LogConfig represents the configuration options for logging.
 type LogConfig struct {
-	File  string `file,validate:"filepath"`
-	Level string `minimal_level,validate:"oneof=debug info warn error"`
-	Quiet bool
-	Json  bool
+	File  string `file,validate:"filepath"`                             // The file path where log entries will be written.
+	Level string `minimal_level,validate:"oneof=debug info warn error"` // The minimal log level to be logged.
+	Quiet bool   // Whether to suppress console output of log entries.
+	JSON  bool   // Whether to format log entries in JSON format.
 }
 
 var loggers map[string]*slog.Logger
@@ -57,9 +58,9 @@ func LogInit(config LogConfig) {
 	handler := func(output io.Writer, options *slog.HandlerOptions, json bool) *slog.Logger {
 		if json {
 			return slog.New(slog.NewJSONHandler(output, options))
-		} else {
-			return slog.New(slog.NewTextHandler(output, options))
 		}
+
+		return slog.New(slog.NewTextHandler(output, options))
 	}
 
 	// We will collect loggers in the temporary variable.
@@ -72,13 +73,13 @@ func LogInit(config LogConfig) {
 		if err != nil {
 			FatalError("IOError", err.Error())
 		}
-		_loggers["file"] = handler(f, options, config.Json)
+		_loggers["file"] = handler(f, options, config.JSON)
 	}
 
 	// Initialize stdout logger if Quiet flag is not set.
 	if !config.Quiet {
-		_loggers["stdout"] = handler(stdout, options, config.Json)
-		_loggers["stderr"] = handler(stderr, options, config.Json)
+		_loggers["stdout"] = handler(stdout, options, config.JSON)
+		_loggers["stderr"] = handler(stderr, options, config.JSON)
 	}
 
 	// Set the loggers variable to the collected loggers.
@@ -118,8 +119,8 @@ func logTargets(level string) []string {
 	}
 
 	for _, handler := range []string{output, "file"} {
-		_, handler_enabled := loggers[handler]
-		if handler_enabled {
+		_, handlerEnabled := loggers[handler]
+		if handlerEnabled {
 			targets = append(targets, handler)
 		}
 	}
@@ -127,10 +128,11 @@ func logTargets(level string) []string {
 	return targets
 }
 
+// LogBuilder represents a builder for creating log entries.
 type LogBuilder struct {
-	level   string
-	message string
-	params  []interface{}
+	level   string        // The log level of the entry.
+	message string        // The log message.
+	params  []interface{} // Optional parameters to be included in the log message.
 }
 
 // NewLogBuilder creates a new LogBuilder instance with the specified log message.

@@ -390,8 +390,8 @@ func TestLoadConfigWithoutMerging(t *testing.T) {
 	if !config.Logging.Quiet {
 		t.Errorf("unexpected result:\n%+v\nexpected:\n%+v", config.Logging.Quiet, false)
 	}
-	if !config.Logging.Json {
-		t.Errorf("unexpected result:\n%+v\nexpected:\n%+v", config.Logging.Json, false)
+	if !config.Logging.JSON {
+		t.Errorf("unexpected result:\n%+v\nexpected:\n%+v", config.Logging.JSON, false)
 	}
 }
 
@@ -407,7 +407,7 @@ func TestLoadConfigWithMerging(t *testing.T) {
 			File:  "./yaml-runner-go-merge.log",
 			Level: "warn",
 			Quiet: true,
-			Json:  true,
+			JSON:  true,
 		},
 		Facts: []Fact{
 			{Name: "MergedFact", Command: "echo mergedFact"},
@@ -432,7 +432,7 @@ func TestLoadConfigWithMerging(t *testing.T) {
 		{Expected: config.Logging.File, Got: merge.Logging.File},
 		{Expected: config.Logging.Level, Got: merge.Logging.Level},
 		{Expected: config.Logging.Quiet, Got: merge.Logging.Quiet},
-		{Expected: config.Logging.Json, Got: merge.Logging.Json},
+		{Expected: config.Logging.JSON, Got: merge.Logging.JSON},
 		{Expected: config.Facts[len(config.Facts)-1].Name, Got: merge.Facts[len(merge.Facts)-1].Name},
 		{Expected: config.Facts[len(config.Facts)-1].Command, Got: merge.Facts[len(merge.Facts)-1].Command},
 		{Expected: config.Facts[len(config.Facts)-1].Command, Got: merge.Facts[len(merge.Facts)-1].Command},
@@ -454,7 +454,7 @@ func TestConfigHashing(t *testing.T) {
 	// when: We calculate a hash for the config file
 	config.CalculateHash()
 	var got uint32 = config.Hash
-	var expected uint32 = 3217042962
+	var expected uint32 = 2915052978
 
 	// then: We check if hash was calculated as expected
 	if got != expected {
