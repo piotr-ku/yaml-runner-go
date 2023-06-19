@@ -2,6 +2,8 @@
 
 YAML Runner Go is an application that executes commands based on the rules defined in a YAML file. It provides the flexibility to run commands either once or as a daemon at specific intervals.
 
+![Continous Integration status](https://github.com/piotr-ku/yaml-runner-go/actions/workflows/integration.yml/badge.svg?branch=main)
+
 ## Installation
 
 To install YAML Runner Go from sources, including any dependencies or system requirements, please follow these clear instructions:
