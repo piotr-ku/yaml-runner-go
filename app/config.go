@@ -20,23 +20,30 @@ import (
 //   - Command: The command associated with the fact. It is a required field.
 //   - Shell: Shell used to execute the command.
 //
-// Action: Provides a data format for the actions defined in the configuration file.
+// Action: Provides a data format for the actions defined in the configuration
+// file.
 //   - Command: The command associated with the action. It is a required field.
-//   - Rules: A slice of strings representing the rules associated with the action.
+//   - Rules: A slice of strings representing the rules associated with
+// the action.
 //   - Shell: Shell used to execute the command.
 //
 // Config: Provides a data format for the configuration file.
-//   - Logging: Contains configuration settings for logging. It uses the system.LogConfig type.
-//   - Facts: A slice of Fact objects representing the facts defined in the configuration file.
-//   - Actions: A slice of Action objects representing the actions defined in the configuration file.
+//   - Logging: Contains configuration settings for logging. It uses
+// the system.LogConfig type.
+//   - Facts: A slice of Fact objects representing the facts defined in
+// the configuration file.
+//   - Actions: A slice of Action objects representing the actions defined in
+// the configuration file.
 //   - Hash: A checksum value calculated based on the merged configuration data.
 //
-// The data structures make use of struct tags for validation purposes, ensuring that required fields are present.
+// The data structures make use of struct tags for validation purposes, ensuring
+// that required fields are present.
 // The validation tags are defined using the "validate" tag in struct fields.
 //
-// This file provides the necessary data structures for representing and validating a configuration file.
+// This file provides the necessary data structures for representing and
+// validating a configuration file.
 
-// Fact provides a data format for the facts defined
+// provides a data format for the facts defined
 // in the configuration file.
 type Fact struct {
 	Name    string `validate:"required"` // fact name
@@ -112,7 +119,10 @@ func (c *Config) CalculateHash() {
 
 	// create a new Adler-32 hash
 	hash := adler32.New()
-	hash.Write(jsonData)
+	_, err = hash.Write(jsonData)
+	if err != nil {
+		system.FatalError("Unknown", "create a new Adler-32 hash failed")
+	}
 	c.Hash = hash.Sum32()
 }
 
@@ -143,8 +153,9 @@ func LoadConfigFile(file string) Config {
 	return config
 }
 
-// parseYaml parses the provided YAML content into a Config struct and returns it.
-// If an error occurs during unmarshaling, it is also returned.
+// parseYaml parses the provided YAML content into a Config struct
+// and returns it. If an error occurs during unmarshaling, it is
+// also returned.
 func parseYaml(content []byte) (Config, error) {
 	var structure Config
 	err := yaml.Unmarshal([]byte(content), &structure)
@@ -164,8 +175,9 @@ func newDurationValidator() *DurationValidator {
 }
 
 // Validate is the validation method for duration strings.
-// It checks if the duration string is valid by attempting to parse it using time.ParseDuration().
-func (v *DurationValidator) Validate(fl validator.FieldLevel) bool {
+// It checks if the duration string is valid by attempting to parse it using
+// time.ParseDuration().
+func (*DurationValidator) Validate(fl validator.FieldLevel) bool {
 	durationStr := fl.Field().String()
 	// field is not required
 	if durationStr == "" {
@@ -175,7 +187,8 @@ func (v *DurationValidator) Validate(fl validator.FieldLevel) bool {
 	return err == nil
 }
 
-// validateConfig validates the provided Config object using a validator and returns any validation errors encountered.
+// validateConfig validates the provided Config object using a validator
+// and returns any validation errors encountered.
 // If the configuration is valid, it returns nil.
 func validateConfig(config Config) error {
 	// Create a new instance of DurationValidator.
@@ -185,7 +198,11 @@ func validateConfig(config Config) error {
 	validate := v.validator
 
 	// Register the custom validation function "duration" with the validator.
-	validate.RegisterValidation("duration", v.Validate)
+	err := validate.RegisterValidation("duration", v.Validate)
+	if err != nil {
+		system.FatalError("ValidationError",
+			"unable to register duration function")
+	}
 
 	return validate.Struct(config)
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 
 	"golang.org/x/exp/slog"
@@ -11,10 +12,14 @@ import (
 
 // LogConfig represents the configuration options for logging.
 type LogConfig struct {
-	File  string `file,validate:"filepath"`                             // The file path where log entries will be written.
-	Level string `minimal_level,validate:"oneof=debug info warn error"` // The minimal log level to be logged.
-	Quiet bool   // Whether to suppress console output of log entries.
-	JSON  bool   // Whether to format log entries in JSON format.
+	// The file path where log entries will be written.
+	File string `file,validate:"filepath"`
+	// The minimal log level to be logged.
+	Level string `minimal_level,validate:"oneof=debug info warn error"`
+	// Whether to suppress console output of log entries.
+	Quiet bool
+	// Whether to format log entries in JSON format.
+	JSON bool
 }
 
 var loggers map[string]*slog.Logger
@@ -22,13 +27,16 @@ var testingStdout bytes.Buffer
 var testingStderr bytes.Buffer
 
 // LogInit initializes the logging system based on the provided configuration.
-// It sets up loggers for writing to stdout/stderr or file, and sets the minimum logging level.
-// If the configuration specifies "testing_buffer" as the file, it redirects logging output to a testing buffer.
-// The loggers are stored in the loggers map for later use.
+// It sets up loggers for writing to stdout/stderr or file, and sets the minimum
+// logging level. If the configuration specifies "testing_buffer" as the file,
+// it redirects logging output to a testing buffer.The loggers are stored in
+// the loggers map for later use.
 func LogInit(config LogConfig) {
 	// stdout/stderr
 	var stdout io.Writer = os.Stdout
 	var stderr io.Writer = os.Stderr
+	// log file permission
+	const logFilePermission fs.FileMode = 0600
 
 	// buffer for testing
 	if config.File == "testing_buffer" {
@@ -54,39 +62,45 @@ func LogInit(config LogConfig) {
 	// default options
 	options := &slog.HandlerOptions{Level: minimumLevel}
 
-	// handler creates a logger with the specified output, options, and JSON format flag.
-	handler := func(output io.Writer, options *slog.HandlerOptions, json bool) *slog.Logger {
-		if json {
-			return slog.New(slog.NewJSONHandler(output, options))
-		}
-
-		return slog.New(slog.NewTextHandler(output, options))
-	}
-
 	// We will collect loggers in the temporary variable.
 	_loggers := map[string]*slog.Logger{}
 
-	// Initialize file logger if the file path is specified and is not "testing_buffer".
+	// Initialize file logger if the file path is specified and
+	// is not "testing_buffer".
 	if config.File != "" && config.File != "testing_buffer" {
-		f, err := os.OpenFile(config.File, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
+		f, err := os.OpenFile(config.File, os.O_RDWR|os.O_CREATE|os.O_APPEND,
+			logFilePermission)
 		// notest
 		if err != nil {
 			FatalError("IOError", err.Error())
 		}
-		_loggers["file"] = handler(f, options, config.JSON)
+		_loggers["file"] = logHandler(f, options, config)
 	}
 
 	// Initialize stdout logger if Quiet flag is not set.
 	if !config.Quiet {
-		_loggers["stdout"] = handler(stdout, options, config.JSON)
-		_loggers["stderr"] = handler(stderr, options, config.JSON)
+		_loggers["stdout"] = logHandler(stdout, options, config)
+		_loggers["stderr"] = logHandler(stderr, options, config)
 	}
 
 	// Set the loggers variable to the collected loggers.
 	loggers = _loggers
 }
 
-// Log saves a log message with the specified level and parameters to the configured log targets.
+// logHandler creates a logger with the specified output, options,
+// and JSON format flag.
+func logHandler(output io.Writer, options *slog.HandlerOptions,
+	config LogConfig) *slog.Logger {
+	switch config.JSON {
+	case true:
+		return slog.New(slog.NewJSONHandler(output, options))
+	default:
+		return slog.New(slog.NewTextHandler(output, options))
+	}
+}
+
+// Log saves a log message with the specified level and parameters
+// to the configured log targets.
 func Log(level string, message string, params ...interface{}) {
 	for _, handler := range logTargets(level) {
 		switch level {
@@ -101,7 +115,8 @@ func Log(level string, message string, params ...interface{}) {
 		// notest
 		default:
 			loggers[handler].Warn(message, params...)
-			FatalError("LogError", fmt.Sprintf("last log has incorrect level: %s", level))
+			FatalError("LogError",
+				fmt.Sprintf("last log has incorrect level: %s", level))
 		}
 	}
 }
@@ -130,12 +145,16 @@ func logTargets(level string) []string {
 
 // LogBuilder represents a builder for creating log entries.
 type LogBuilder struct {
-	level   string        // The log level of the entry.
-	message string        // The log message.
-	params  []interface{} // Optional parameters to be included in the log message.
+	// The log level of the entry.
+	level string
+	// The log message.
+	message string
+	// Optional parameters to be included in the log message.
+	params []interface{}
 }
 
-// NewLogBuilder creates a new LogBuilder instance with the specified log message.
+// NewLogBuilder creates a new LogBuilder instance with the specified
+// log message.
 func NewLogBuilder(message string) *LogBuilder {
 	return &LogBuilder{
 		level:   "INFO",
@@ -156,7 +175,8 @@ func (b *LogBuilder) Set(params ...interface{}) *LogBuilder {
 	return b
 }
 
-// Save builds the log parameters and invokes the Log function to save the log message.
+// Save builds the log parameters and invokes the Log function
+// to save the log message.
 func (b *LogBuilder) Save() {
 	Log(b.level, b.message, b.params...)
 }
