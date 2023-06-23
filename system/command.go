@@ -26,6 +26,7 @@ type Command struct {
 // NewCommand creates a new Command with default settings.
 func NewCommand(command string) Command {
 	pwd, err := os.Getwd()
+	const timeout int = 5
 	// notest
 	if err != nil {
 		FatalError("OSError", err.Error())
@@ -33,7 +34,7 @@ func NewCommand(command string) Command {
 	return Command{
 		Command:   command,
 		Directory: pwd,
-		Timeout:   5,
+		Timeout:   timeout,
 		Shell:     "/bin/sh",
 	}
 }
@@ -41,7 +42,8 @@ func NewCommand(command string) Command {
 // Execute executes the command and captures its output.
 func (c *Command) Execute() error {
 	// Set command timeout
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.Timeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		time.Duration(c.Timeout)*time.Second)
 	defer cancel()
 
 	// Set command with context

@@ -43,7 +43,8 @@ var daemonCmd = &cobra.Command{
 			runDuration := stopTime.Sub(startTime)
 			// Sleep if run duration is less than minimal interval
 			if runDuration < time.Duration(minInterval) {
-				wait := time.Duration(minInterval.Milliseconds()-runDuration.Milliseconds()) * time.Millisecond
+				diff := minInterval.Milliseconds() - runDuration.Milliseconds()
+				wait := time.Duration(diff) * time.Millisecond
 				// Log
 				system.Log("debug", "sleeping", "ms", wait.Milliseconds())
 				// Wait

@@ -7,7 +7,8 @@ import (
 // Facts represents a map of fact names to their corresponding values.
 type Facts map[string]string
 
-// gatherFacts collects facts by executing commands and saves the results in a temporary storage.
+// gatherFacts collects facts by executing commands and saves the results
+// in a temporary storage.
 func gatherFacts(facts []Fact) Facts {
 	// temporary storage
 	gatheredFacts := Facts{}
@@ -20,7 +21,7 @@ func gatherFacts(facts []Fact) Facts {
 			c.Shell = fact.Shell
 		}
 		// execute command
-		c.Execute()
+		_ = c.Execute()
 		// log
 		LogFactGathered(fact, c)
 

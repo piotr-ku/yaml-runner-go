@@ -15,7 +15,7 @@ func executeActions(actions []Action, facts Facts) {
 				c.Shell = action.Shell
 			}
 			// execute command
-			c.Execute()
+			_ = c.Execute()
 			// log
 			logActionExecuted(action, &c)
 		}
@@ -28,7 +28,7 @@ func checkActionRules(action Action, facts Facts) bool {
 	for _, rule := range action.Rules {
 		c := system.NewCommand(rule)
 		c.Environment = facts
-		c.Execute()
+		_ = c.Execute()
 		logRuleChecked(rule, &c)
 		if c.Rc != 0 {
 			return false

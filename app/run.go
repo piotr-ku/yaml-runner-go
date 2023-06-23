@@ -11,7 +11,8 @@ var applicationStarted bool
 var configurationHash uint32
 
 // Run executes all the actions defined in the configuration file.
-// It loads the configuration from the specified file and merges it with the provided merge configuration.
+// It loads the configuration from the specified file and merges it with
+// the provided merge configuration.
 // It initializes logging and gathers facts before executing the actions.
 //
 // Parameters:
@@ -66,7 +67,8 @@ func Run(configFile string, configArgs Config) Config {
 
 		// Log configuration changes
 		system.Log("debug", "configuration hash", "hash", configurationHash)
-		system.Log("info", "configuration loaded", "file", configFile, "facts", len(config.Facts), "actions", len(config.Actions))
+		system.Log("info", "configuration loaded", "file", configFile, "facts",
+			len(config.Facts), "actions", len(config.Actions))
 		system.Log("debug", "configuration dump", "config", config)
 	}
 

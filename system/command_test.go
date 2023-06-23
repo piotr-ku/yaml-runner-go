@@ -6,95 +6,74 @@ import (
 	"testing"
 )
 
+const unexpectedValue string = "Unexpected %s for `%s`. Expected: %v, Got: %v"
+
 func TestNewCommand(t *testing.T) {
 	command := "echo test"
 	pwd, _ := os.Getwd()
 	c := NewCommand(command)
+	const timeout int = 5
 
-	// Verify that the command is set correctly
-	if c.Command != command {
-		t.Errorf("Unexpected message. Expected: %s, Got: %s", command, c.Command)
+	tests := []struct {
+		Expected any
+		Got      any
+		Desc     string
+	}{
+		{Expected: command, Got: c.Command, Desc: "command"},
+		{Expected: 0, Got: len(c.Environment), Desc: "environment length"},
+		{Expected: pwd, Got: c.Directory, Desc: "directory"},
+		{Expected: timeout, Got: c.Timeout, Desc: "timeout"},
+		{Expected: "/bin/sh", Got: c.Shell, Desc: "shell"},
+		{Expected: "", Got: c.Stdout, Desc: "stdout"},
+		{Expected: "", Got: c.Stderr, Desc: "stderr"},
+		{Expected: 0, Got: c.Rc, Desc: "return code"},
+		{Expected: nil, Got: c.Error, Desc: "error"},
 	}
 
-	// Verify that the environment is not set
-	if len(c.Environment) != 0 {
-		t.Errorf("Unexpected environment length. Expected: %d, Got: %d", 0, len(c.Environment))
-	}
-
-	// Verify that the directory is set to "os.Getwd()" by default
-	if c.Directory != pwd {
-		t.Errorf("Unexpected directory. Expected: %s, Got: %s", pwd, c.Directory)
-	}
-
-	// Verify that the timeout is set to 5 by default
-	if c.Timeout != 5 {
-		t.Errorf("Unexpected timeout. Expected: %d, Got: %d", 5, c.Timeout)
-	}
-
-	// Verify that the shell is set to "/bin/sh" by default
-	if c.Shell != "/bin/sh" {
-		t.Errorf("Unexpected shell. Expected: %s, Got: %s", "/bin/sh", c.Shell)
-	}
-
-	// Verify that the stdout is empty by default
-	if c.Stdout != "" {
-		t.Errorf("Unexpected stdout. Expected: %s, Got: %s", "", c.Stdout)
-	}
-
-	// Verify that the stderr is empty by default
-	if c.Stderr != "" {
-		t.Errorf("Unexpected stderr. Expected: %s, Got: %s", "", c.Stderr)
-	}
-
-	// Verify that the return code is 0 by default
-	if c.Rc != 0 {
-		t.Errorf("Unexpected return code. Expected: %d, Got: %d", 0, c.Rc)
-	}
-
-	// Verify that the error is nil by default
-	if c.Error != nil {
-		t.Errorf("Unexpected error value. Expected: %v, Got: %v", nil, c.Error)
+	for _, test := range tests {
+		if test.Expected != test.Got {
+			t.Errorf("Unexpected %v. Expected: %v, Got: %v",
+				test.Desc, test.Expected, test.Got)
+		}
 	}
 }
 
 func TestCommand(t *testing.T) {
-	// tests table
-	var tests = []struct {
+	// commands
+	var commands = []struct {
 		Command string
 		Rc      int
 		Stdout  string
 		Stderr  string
 		Error   error
 	}{
-		{Command: "echo test", Rc: 0, Stdout: "test", Stderr: "", Error: nil},
-		{Command: "echo test 1>&2", Rc: 0, Stdout: "", Stderr: "test", Error: nil},
-		{Command: "exit 1", Rc: 1, Stdout: "", Stderr: "", Error: errors.New("exit status 1")},
+		{"echo test", 0, "test", "", nil},
+		{"echo test 1>&2", 0, "", "test", nil},
+		{"exit 1", 1, "", "", errors.New("exit status 1")},
 	}
 
-	for _, test := range tests {
+	for _, command := range commands {
 		// run command
-		cmd := NewCommand(test.Command)
+		cmd := NewCommand(command.Command)
 		cmd.Shell = "/bin/bash"
-		cmd.Execute()
+		_ = cmd.Execute()
 
-		// Verify expected return code
-		if cmd.Rc != test.Rc {
-			t.Errorf("Unexpected return code for `%s`. Expected: %d, Got: %d", test.Command, test.Rc, cmd.Rc)
+		var tests = []struct {
+			Expected    any
+			Got         any
+			Description string
+		}{
+			{command.Rc, cmd.Rc, "return code"},
+			{command.Stdout, cmd.Stdout, "stdout"},
+			{command.Stderr, cmd.Stderr, "stderr"},
+			{command.Error == nil, cmd.Error == nil, "error"},
 		}
 
-		// Verify expected stdout
-		if cmd.Stdout != test.Stdout {
-			t.Errorf("Unexpected stdout for `%s`. Expected: %s, Got: %s", test.Command, test.Stdout, cmd.Stdout)
-		}
-
-		// Verify expected stderr
-		if cmd.Stderr != test.Stderr {
-			t.Errorf("Unexpected stderr for `%s`. Expected: %s, Got: %s", test.Command, test.Stderr, cmd.Stderr)
-		}
-
-		// Verify expected error value
-		if cmd.Error != nil && cmd.Error.Error() != test.Error.Error() {
-			t.Errorf("Unexpected error value for `%s`. Expected: %v, Got: %v", test.Command, test.Error.Error(), cmd.Error.Error())
+		for _, test := range tests {
+			if test.Expected != test.Got {
+				t.Errorf(unexpectedValue,
+					test.Description, cmd.Command, test.Expected, test.Got)
+			}
 		}
 	}
 }
@@ -104,11 +83,12 @@ func TestCommandEnviroment(t *testing.T) {
 	// run command
 	cmd := NewCommand(command)
 	cmd.Environment = map[string]string{"VAR1": "test"}
-	cmd.Execute()
+	_ = cmd.Execute()
 
 	// Verify expected stdout
 	if cmd.Stdout != "test" {
-		t.Errorf("Unexpected stdout for `%s`. Expected: %s, Got: %s", command, "test", cmd.Stdout)
+		t.Errorf(unexpectedValue,
+			"environment variable", command, "test", cmd.Stdout)
 	}
 }
 
@@ -118,24 +98,25 @@ func TestCommandWorkingDirectory(t *testing.T) {
 	// run command
 	cmd := NewCommand(command)
 	cmd.Directory = "/"
-	cmd.Execute()
+	_ = cmd.Execute()
 
 	// Verify expected stdout
 	if cmd.Stdout != expected {
-		t.Errorf("Unexpected stdout for `%s`. Expected: %s, Got: %s", command, expected, cmd.Stdout)
+		t.Errorf(unexpectedValue, "working directory", command, expected,
+			cmd.Stdout)
 	}
 }
 
 func TestCommandShell(t *testing.T) {
-	command := "echo ${SHELL}"
+	command := "echo $0"
 	expected := "/bin/bash"
 	// run command
 	cmd := NewCommand(command)
 	cmd.Shell = "/bin/bash"
-	cmd.Execute()
+	_ = cmd.Execute()
 
 	// Verify expected stdout
 	if cmd.Stdout != expected {
-		t.Errorf("Unexpected stdout for `%s`. Expected: %s, Got: %s", command, expected, cmd.Stdout)
+		t.Errorf(unexpectedValue, "shell", command, expected, cmd.Stdout)
 	}
 }
