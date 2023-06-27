@@ -1,15 +1,11 @@
 package app
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/piotr-ku/yaml-runner-go/system"
+	"github.com/stretchr/testify/assert"
 )
-
-const unexpectedResult string = "unexpected result:\n%+v\nexpected:\n%+v"
-const unexpectedError string = "unexpected error: %v"
-const unexpectedNone string = "expected an error, but got none"
 
 func TestParseYamlWithValidData(t *testing.T) {
 	// given: We define the input, which is the contents of a valid YAML file.
@@ -28,9 +24,7 @@ func TestParseYamlWithValidData(t *testing.T) {
 	result, err := parseYaml(input)
 
 	// then: We check that the function did not return an error.
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
+	assert.Nil(t, err)
 
 	// We check that the result object is equal to the expected data structure.
 	expected := Config{
@@ -47,9 +41,7 @@ func TestParseYamlWithValidData(t *testing.T) {
 			},
 		},
 	}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf(unexpectedResult, result, expected)
-	}
+	assert.Equal(t, expected, result)
 }
 
 func TestParseYamlWithInvalidData(t *testing.T) {
@@ -61,16 +53,11 @@ func TestParseYamlWithInvalidData(t *testing.T) {
 	result, err := parseYaml(input)
 
 	// then: We check that the function returned an error.
-	if err == nil {
-		t.Error(unexpectedNone)
-	}
+	assert.Error(t, err)
 
 	// We check that the result object is zero-value, since the input
 	// was invalid.
-	expected := Config{}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf(unexpectedResult, result, expected)
-	}
+	assert.Equal(t, Config{}, result)
 }
 
 func TestParseYamlWithEmptyContent(t *testing.T) {
@@ -82,15 +69,10 @@ func TestParseYamlWithEmptyContent(t *testing.T) {
 	result, err := parseYaml(input)
 
 	// then: We check that the function did not return an error.
-	if err != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, err)
 
 	// We check that the result object is zero-value, since there was no input.
-	expected := Config{}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf(unexpectedResult, result, expected)
-	}
+	assert.Equal(t, Config{}, result)
 }
 
 func TestParseYamlWithMissingData(t *testing.T) {
@@ -107,9 +89,7 @@ func TestParseYamlWithMissingData(t *testing.T) {
 	result, err := parseYaml(input)
 
 	// then: We check that the function did not return an error.
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
+	assert.Nil(t, err)
 
 	// We check that the result object has zero-value fields where data
 	// is missing.
@@ -121,9 +101,7 @@ func TestParseYamlWithMissingData(t *testing.T) {
 			{Rules: nil, Command: "echo carnation-secrecy-twins"},
 		},
 	}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf(unexpectedResult, result, expected)
-	}
+	assert.Equal(t, expected, result)
 }
 
 func TestParseYamlWithMalformedData(t *testing.T) {
@@ -141,9 +119,7 @@ func TestParseYamlWithMalformedData(t *testing.T) {
 	_, err := parseYaml(input)
 
 	// then: We check that the function returns an error.
-	if err == nil {
-		t.Error("expected error, but got none")
-	}
+	assert.Error(t, err)
 }
 
 func TestParseYamlWithEmptyInput(t *testing.T) {
@@ -155,15 +131,9 @@ func TestParseYamlWithEmptyInput(t *testing.T) {
 	config, err := parseYaml(input)
 
 	// then: We check that the function returns an empty config and no error.
-	if err != nil {
-		t.Errorf("expected no error, but got %v", err)
-	}
-	if len(config.Facts) != 0 {
-		t.Errorf("expected empty facts, but got %+v", config.Facts)
-	}
-	if len(config.Actions) != 0 {
-		t.Errorf("expected empty actions, but got %+v", config.Actions)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(config.Facts))
+	assert.Equal(t, 0, len(config.Actions))
 }
 
 func TestParseYamlWithInvalidInput(t *testing.T) {
@@ -175,9 +145,7 @@ func TestParseYamlWithInvalidInput(t *testing.T) {
 	_, err := parseYaml(input)
 
 	// then: We check that the function returns an error.
-	if err == nil {
-		t.Error("expected error, but got none")
-	}
+	assert.Error(t, err)
 }
 
 func TestParseYamlWithValidInput(t *testing.T) {
@@ -199,9 +167,8 @@ func TestParseYamlWithValidInput(t *testing.T) {
 
 	// then: We check that the function returns the expected config and
 	// no error.
-	if err != nil {
-		t.Errorf("expected no error, but got %v", err)
-	}
+	assert.Nil(t, err)
+
 	expectedConfig := Config{
 		Facts: []Fact{
 			{
@@ -218,9 +185,7 @@ func TestParseYamlWithValidInput(t *testing.T) {
 			},
 		},
 	}
-	if !reflect.DeepEqual(config, expectedConfig) {
-		t.Errorf(unexpectedResult, config, expectedConfig)
-	}
+	assert.Equal(t, expectedConfig, config)
 }
 
 func TestParseYamlWithValidInputAndExtraFields(t *testing.T) {
@@ -242,9 +207,7 @@ func TestParseYamlWithValidInputAndExtraFields(t *testing.T) {
 
 	// then: We check that the function returns the expected config and
 	// no error.
-	if err != nil {
-		t.Errorf("expected no error, but got %v", err)
-	}
+	assert.Nil(t, err)
 	expectedConfig := Config{
 		Facts: []Fact{
 			{Name: "fact2", Command: "echo arrange-tamale-deserving"},
@@ -253,9 +216,7 @@ func TestParseYamlWithValidInputAndExtraFields(t *testing.T) {
 			{Rules: []string{}, Command: "echo diploma-fame-equity"},
 		},
 	}
-	if !reflect.DeepEqual(config, expectedConfig) {
-		t.Errorf(unexpectedResult, config, expectedConfig)
-	}
+	assert.Equal(t, expectedConfig, config)
 }
 
 func TestParseYamlWithInvalidYamlInput(t *testing.T) {
@@ -276,9 +237,7 @@ func TestParseYamlWithInvalidYamlInput(t *testing.T) {
 	_, err := parseYaml(invalidInput)
 
 	// then: We check that the function returns an error.
-	if err == nil {
-		t.Error("expected an error, but got none")
-	}
+	assert.Error(t, err)
 }
 
 func TestValidateConfigWithValidData(t *testing.T) {
@@ -296,15 +255,11 @@ func TestValidateConfigWithValidData(t *testing.T) {
 
 	// when: We call the parseYaml function with the input to get the result.
 	config, err := parseYaml(input)
-	if err != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, err)
 	validated := validateConfig(config)
 
 	// then: We check that the function did not return an error.
-	if validated != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, validated)
 }
 
 func TestValidateConfigWithMissingActions(t *testing.T) {
@@ -317,15 +272,11 @@ func TestValidateConfigWithMissingActions(t *testing.T) {
 
 	// when: We call the parseYaml function with the input to get the result.
 	config, err := parseYaml(input)
-	if err != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, err)
 	validated := validateConfig(config)
 
 	// then: We check that the function did not return an error.
-	if validated == nil {
-		t.Error("expected an error, but got none")
-	}
+	assert.NotNil(t, validated)
 }
 
 func TestValidateConfigWithMissingFactName(t *testing.T) {
@@ -342,15 +293,11 @@ func TestValidateConfigWithMissingFactName(t *testing.T) {
 
 	// when: We call the parseYaml function with the input to get the result.
 	config, err := parseYaml(input)
-	if err != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, err)
 	validated := validateConfig(config)
 
 	// then: We check that the function did not return an error.
-	if validated == nil {
-		t.Error(unexpectedNone)
-	}
+	assert.NotNil(t, validated)
 }
 
 func TestValidateConfigWithMissingFactCommand(t *testing.T) {
@@ -367,15 +314,11 @@ func TestValidateConfigWithMissingFactCommand(t *testing.T) {
 
 	// when: We call the parseYaml function with the input to get the result.
 	config, err := parseYaml(input)
-	if err != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, err)
 	validated := validateConfig(config)
 
 	// then: We check that the function did not return an error.
-	if validated == nil {
-		t.Error(unexpectedNone)
-	}
+	assert.NotNil(t, validated)
 }
 
 func TestValidateConfigWithMissingActionCommand(t *testing.T) {
@@ -393,15 +336,11 @@ func TestValidateConfigWithMissingActionCommand(t *testing.T) {
 
 	// when: We call the parseYaml function with the input to get the result.
 	config, err := parseYaml(input)
-	if err != nil {
-		t.Errorf(unexpectedError, err)
-	}
+	assert.Nil(t, err)
 	validated := validateConfig(config)
 
 	// then: We check that the function did not return an error.
-	if validated == nil {
-		t.Error(unexpectedNone)
-	}
+	assert.NotNil(t, validated)
 }
 
 func TestLoadConfigWithoutMerging(t *testing.T) {
@@ -414,22 +353,10 @@ func TestLoadConfigWithoutMerging(t *testing.T) {
 
 	// then: We check that the function returns the expected config and
 	// no error.
-	if config.Logging.File != "./yaml-runner-go.log" {
-		t.Errorf(unexpectedResult,
-			config.Logging.File, "./yaml-runner-go.log")
-	}
-	if config.Logging.Level != "error" {
-		t.Errorf(unexpectedResult,
-			config.Logging.Level, "error")
-	}
-	if !config.Logging.Quiet {
-		t.Errorf(unexpectedResult,
-			config.Logging.Quiet, false)
-	}
-	if !config.Logging.JSON {
-		t.Errorf(unexpectedResult,
-			config.Logging.JSON, false)
-	}
+	assert.Equal(t, "./yaml-runner-go.log", config.Logging.File)
+	assert.Equal(t, "error", config.Logging.Level)
+	assert.Equal(t, true, config.Logging.Quiet)
+	assert.Equal(t, true, config.Logging.JSON)
 }
 
 func TestLoadConfigWithMerging(t *testing.T) {
@@ -503,10 +430,7 @@ func TestLoadConfigWithMerging(t *testing.T) {
 			Got:      merge.Actions[len(merge.Actions)-1].Command,
 		},
 	} {
-		if test.Expected != test.Got {
-			t.Errorf(unexpectedResult,
-				test.Got, test.Expected)
-		}
+		assert.Equal(t, test.Expected, test.Got)
 	}
 }
 
@@ -523,9 +447,7 @@ func TestConfigHashing(t *testing.T) {
 	var expected uint32 = 2915052978
 
 	// then: We check if hash was calculated as expected
-	if got != expected {
-		t.Errorf(unexpectedResult, got, expected)
-	}
+	assert.Equal(t, expected, got)
 }
 
 func TestDurationValidator(t *testing.T) {
@@ -554,16 +476,9 @@ func TestDurationValidator(t *testing.T) {
 		// Register the custom validation function "duration" with
 		// the validator.
 		err := validate.RegisterValidation("duration", v.Validate)
-		if err != nil {
-			system.FatalError("ValidationError",
-				"unable to register duration function")
-		}
+		assert.Nil(t, err)
 
 		// Compare got and expected result
-		got := validate.Struct(test.Duration) == nil
-		if test.Expected != got {
-			t.Errorf("unexpected result, duration %s: got %+v expected:%+v",
-				test.Duration, got, test.Expected)
-		}
+		assert.Equal(t, test.Expected, validate.Struct(test.Duration) == nil)
 	}
 }

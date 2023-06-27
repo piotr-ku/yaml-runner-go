@@ -3,16 +3,16 @@ package system
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-const unexpectedResult string = "Unexpected %s. Expected: %v, Got: %v"
 const stderrLevel string = "error"
 
 // TestLogTargets contains an unit test for logTargets() function
-func TestLogTargets(test *testing.T) {
+func TestLogTargets(t *testing.T) {
 	// temporary test file
 	const testLogFile string = "/tmp/test.log"
 	const errorFormat string = "level: %s, file: %s, quiet: %t, " +
@@ -68,17 +68,20 @@ func TestLogTargets(test *testing.T) {
 			want: []string{"file"}},
 	}
 
-	for _, t := range tests {
+	for _, test := range tests {
 		// logging init
-		config := LogConfig{File: t.file, Quiet: t.quiet, JSON: false,
-			Level: t.level}
+		config := LogConfig{File: test.file, Quiet: test.quiet, JSON: false,
+			Level: test.level}
 		LogInit(config)
 		// get targets
-		targets := logTargets(t.level)
+		targets := logTargets(test.level)
 		// check number of targets
-		if !reflect.DeepEqual(targets, t.want) && !(len(targets) == 0 &&
-			len(t.want) == 0) {
-			test.Errorf(errorFormat, t.level, t.file, t.quiet, targets, t.want)
+		if !(len(targets) == 0 && len(test.want) == 0) {
+			assert.Equal(t, test.want, targets, errorFormat, test.level,
+				test.file, test.quiet, targets, test.want)
+		} else {
+			assert.NotNil(t, len(targets))
+			assert.NotNil(t, len(test.want))
 		}
 	}
 }
@@ -105,9 +108,7 @@ func TestLogTextHandler(t *testing.T) {
 		}
 
 		// content test
-		if !strings.Contains(got, expected) {
-			t.Errorf(unexpectedResult, "log content", expected, got)
-		}
+		assert.Contains(t, got, expected)
 	}
 }
 
@@ -145,15 +146,10 @@ func TestLogJSONHandler(t *testing.T) {
 		// decode JSON
 		var got Output
 		err := json.Unmarshal(output, &got)
-		if err != nil {
-			t.Fatalf("Incorrect JSON log: %s", err)
-		}
+		assert.Nil(t, err)
 
 		// Compare the actual and expected output
-		if !reflect.DeepEqual(got, expected) {
-			t.Errorf("Decoded JSON does not match the expected output.\n"+
-				"Expected: %+v\nGot:   %+v", expected, got)
-		}
+		assert.Equal(t, expected, got)
 	}
 }
 
@@ -164,28 +160,18 @@ func TestNewLogBuilder(t *testing.T) {
 	builder := NewLogBuilder(message)
 
 	// Verify that a new LogBuilder instance is created
-	if builder == nil {
-		t.Error("NewLogBuilder should not return nil")
+	if !assert.NotNil(t, builder) {
 		return
 	}
 
 	// Verify that the level is set to "INFO" by default
-	if builder.level != "INFO" {
-		t.Errorf("Unexpected default level. Expected: %s, Got: %s", "INFO",
-			builder.level)
-	}
+	assert.Equal(t, "INFO", builder.level)
 
 	// Verify that the message is set correctly
-	if builder.message != message {
-		t.Errorf("Unexpected message. Expected: %s, Got: %s", message,
-			builder.message)
-	}
+	assert.Equal(t, message, builder.message)
 
 	// Verify that the params slice is empty
-	if len(builder.params) != 0 {
-		t.Error("Unexpected params slice length. Expected: 0, Got:",
-			len(builder.params))
-	}
+	assert.Equal(t, 0, len(builder.params))
 }
 
 // TestLevel verifies that the Level method sets the level correctly
@@ -199,10 +185,7 @@ func TestLevel(t *testing.T) {
 	builder.Level(level)
 
 	// Verify that the level is set correctly
-	if builder.level != level {
-		t.Errorf("Unexpected level. Expected: %s, Got: %s", level,
-			builder.level)
-	}
+	assert.Equal(t, level, builder.level)
 }
 
 // TestSet verifies that the Set method adds parameters correctly to
@@ -216,17 +199,13 @@ func TestSet(t *testing.T) {
 	builder.Set(params...)
 
 	// Verify that the params slice is updated correctly
-	if len(builder.params) != len(params) {
-		t.Errorf("Unexpected number of params. Expected: %d, Got: %d",
-			len(params), len(builder.params))
-	}
+	assert.Equal(t, len(params), len(builder.params))
 
 	// Verify that each parameter is added correctly
 	for i, param := range params {
-		if builder.params[i] != param {
-			t.Errorf("Unexpected param at index %d. Expected: %v, Got: %v",
-				i, param, builder.params[i])
-		}
+		assert.Equal(t, param, builder.params[i],
+			"Unexpected param at index %d. Expected: %v, Got: %v",
+			i, param, builder.params[i])
 	}
 }
 
@@ -258,9 +237,6 @@ func TestSave(t *testing.T) {
 		}
 
 		// content test
-		if !strings.Contains(got, expected) {
-			t.Errorf("Unexpected log content. Expected: <%s>, Got: <%s>",
-				expected, got)
-		}
+		assert.Contains(t, got, expected)
 	}
 }

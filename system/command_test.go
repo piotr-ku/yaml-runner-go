@@ -4,9 +4,9 @@ import (
 	"errors"
 	"os"
 	"testing"
-)
 
-const unexpectedValue string = "Unexpected %s for `%s`. Expected: %v, Got: %v"
+	"github.com/stretchr/testify/assert"
+)
 
 func TestNewCommand(t *testing.T) {
 	command := "echo test"
@@ -31,10 +31,7 @@ func TestNewCommand(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if test.Expected != test.Got {
-			t.Errorf("Unexpected %v. Expected: %v, Got: %v",
-				test.Desc, test.Expected, test.Got)
-		}
+		assert.Equal(t, test.Expected, test.Got, test)
 	}
 }
 
@@ -63,17 +60,15 @@ func TestCommand(t *testing.T) {
 			Got         any
 			Description string
 		}{
-			{command.Rc, cmd.Rc, "return code"},
+			{command.Rc, cmd.Rc, "return codes"},
 			{command.Stdout, cmd.Stdout, "stdout"},
 			{command.Stderr, cmd.Stderr, "stderr"},
 			{command.Error == nil, cmd.Error == nil, "error"},
 		}
 
 		for _, test := range tests {
-			if test.Expected != test.Got {
-				t.Errorf(unexpectedValue,
-					test.Description, cmd.Command, test.Expected, test.Got)
-			}
+			assert.Equal(t, test.Expected, test.Got,
+				"Unexpected %s for `%s`.", test.Description, cmd.Command)
 		}
 	}
 }
@@ -86,37 +81,27 @@ func TestCommandEnviroment(t *testing.T) {
 	_ = cmd.Execute()
 
 	// Verify expected stdout
-	if cmd.Stdout != "test" {
-		t.Errorf(unexpectedValue,
-			"environment variable", command, "test", cmd.Stdout)
-	}
+	assert.Equal(t, "test", cmd.Stdout)
 }
 
 func TestCommandWorkingDirectory(t *testing.T) {
 	command := "pwd"
-	expected := "/"
 	// run command
 	cmd := NewCommand(command)
 	cmd.Directory = "/"
 	_ = cmd.Execute()
 
 	// Verify expected stdout
-	if cmd.Stdout != expected {
-		t.Errorf(unexpectedValue, "working directory", command, expected,
-			cmd.Stdout)
-	}
+	assert.Equal(t, "/", cmd.Stdout)
 }
 
 func TestCommandShell(t *testing.T) {
 	command := "echo $0"
-	expected := "/bin/bash"
 	// run command
 	cmd := NewCommand(command)
 	cmd.Shell = "/bin/bash"
 	_ = cmd.Execute()
 
 	// Verify expected stdout
-	if cmd.Stdout != expected {
-		t.Errorf(unexpectedValue, "shell", command, expected, cmd.Stdout)
-	}
+	assert.Equal(t, "/bin/bash", cmd.Stdout)
 }
