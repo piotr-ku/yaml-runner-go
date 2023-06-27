@@ -2,6 +2,8 @@ package system
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestReturnCode contains an unit test for returnCode function
@@ -21,7 +23,7 @@ func TestReturnCode(t *testing.T) {
 	for _, tt := range tests {
 		result := returnCode(tt.input)
 		if result != tt.want {
-			t.Errorf(tt.description, result, tt.want)
+			assert.Equal(t, result, tt.want, tt.description)
 		}
 	}
 }
