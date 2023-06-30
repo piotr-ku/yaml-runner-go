@@ -1,29 +1,90 @@
 package system
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// TestReturnCode contains an unit test for returnCode function
-func TestReturnCode(t *testing.T) {
-	var tests = []struct {
-		description string
-		input       string
-		want        int
-	}{
-		{"OK should be 0", "OK", 0},
-		{"Unknown should be 1", "Unknown", 1},
-		{"NotExisted should be 1", "NotExisted", 1},
-		{"IOError should be 64", "IOError", 64},
-		{"ParseError should be 65", "ParseError", 65},
+// TestFatalError contains an unit test for FatalError function
+func TestFatalError(t *testing.T) {
+	var rc int
+	exitFunction = func(code int) {
+		rc = code
 	}
 
-	for _, tt := range tests {
-		result := returnCode(tt.input)
-		if result != tt.want {
-			assert.Equal(t, result, tt.want, tt.description)
-		}
+	const codeIOError = 64
+	const codeParseError = 65
+	const codeValidationError = 66
+	const codeOSError = 67
+
+	tests := []struct {
+		name     string
+		error    string
+		expected int
+	}{
+		{
+			name:     "",
+			error:    "",
+			expected: 1,
+		},
+		{
+			name:     "UnexistingError",
+			error:    "This error does not exists.",
+			expected: 1,
+		},
+		{
+			name:     "OK",
+			error:    "",
+			expected: 0,
+		},
+		{
+			name:     "Unknown",
+			error:    "Unknown error",
+			expected: 1,
+		},
+		{
+			name:     "IOError",
+			error:    "IOError error",
+			expected: codeIOError,
+		},
+		{
+			name:     "ParseError",
+			error:    "ParseError error",
+			expected: codeParseError,
+		},
+		{
+			name:     "ValidationError",
+			error:    "ValidationError error",
+			expected: codeValidationError,
+		},
+		{
+			name:     "OSError",
+			error:    "OSError error",
+			expected: codeOSError,
+		},
+	}
+
+	for _, test := range tests {
+		// Set log settings and clear buffers
+		LogInit(LogConfig{
+			File:  "testing_buffer",
+			Level: "info",
+			Quiet: false,
+			JSON:  false,
+		})
+
+		// Call the tested function
+		FatalError(test.name, test.error)
+
+		// Test return code
+		assert.Equal(t, test.expected, rc)
+
+		// Test logs
+		assert.Equal(t, "", GetTestingStdout())
+		assert.Regexp(t, fmt.Sprintf(" level=ERROR "+
+			"msg=\"FATAL ERROR: %s %s\" ", test.name, test.error),
+			GetTestingStderr())
 	}
 }
