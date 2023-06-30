@@ -2,6 +2,23 @@ package app
 
 import "github.com/piotr-ku/yaml-runner-go/system"
 
+// The file includes the following data structures:
+//
+// Action: Provides a data format for the actions defined in the configuration
+// file.
+//   - Command: The command associated with the action. It is a required field.
+//   - Rules: A slice of strings representing the rules associated with
+// the action.
+//   - Shell: Shell used to execute the command.
+
+// Action format provides a data format for the actions defined
+// in the configuration file.
+type Action struct {
+	Command string   `validate:"required"` // action command
+	Rules   []string // action rules
+	Shell   string   // action shell
+}
+
 // executeActions executes a list of actions based on the provided facts.
 func executeActions(actions []Action, facts Facts) {
 	for _, action := range actions {
@@ -9,7 +26,7 @@ func executeActions(actions []Action, facts Facts) {
 		if checkActionRules(action, facts) {
 			c := system.NewCommand(action.Command)
 			// set facts as environment variables
-			c.Environment = facts
+			c.Environment = facts.toEnvironment()
 			// set shell
 			if action.Shell != "" {
 				c.Shell = action.Shell
@@ -27,7 +44,7 @@ func executeActions(actions []Action, facts Facts) {
 func checkActionRules(action Action, facts Facts) bool {
 	for _, rule := range action.Rules {
 		c := system.NewCommand(rule)
-		c.Environment = facts
+		c.Environment = facts.toEnvironment()
 		_ = c.Execute()
 		logRuleChecked(rule, &c)
 		if c.Rc != 0 {

@@ -74,6 +74,7 @@ func Run(configFile string, configArgs Config) Config {
 
 	// Gather facts
 	facts := gatherFacts(config.Facts)
+	system.Log("debug", "facts", "facts", facts)
 
 	// Execute actions
 	executeActions(config.Actions, facts)

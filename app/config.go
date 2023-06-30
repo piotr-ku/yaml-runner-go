@@ -13,20 +13,6 @@ import (
 
 // File config.go defines data structures used for the configuration file.
 //
-// The file includes the following data structures:
-//
-// Fact: Provides a data format for the facts defined in the configuration file.
-//   - Name: The name of the fact. It is a required field.
-//   - Command: The command associated with the fact. It is a required field.
-//   - Shell: Shell used to execute the command.
-//
-// Action: Provides a data format for the actions defined in the configuration
-// file.
-//   - Command: The command associated with the action. It is a required field.
-//   - Rules: A slice of strings representing the rules associated with
-// the action.
-//   - Shell: Shell used to execute the command.
-//
 // Config: Provides a data format for the configuration file.
 //   - Logging: Contains configuration settings for logging. It uses
 // the system.LogConfig type.
@@ -42,22 +28,6 @@ import (
 //
 // This file provides the necessary data structures for representing and
 // validating a configuration file.
-
-// provides a data format for the facts defined
-// in the configuration file.
-type Fact struct {
-	Name    string `validate:"required"` // fact name
-	Command string `validate:"required"` // fact command
-	Shell   string // fact shell
-}
-
-// Action format provides a data format for the actions defined
-// in the configuration file.
-type Action struct {
-	Command string   `validate:"required"` // action command
-	Rules   []string // action rules
-	Shell   string   // action shell
-}
 
 // Daemon provides a data format for daemon settings defined
 // in the configuration file.
