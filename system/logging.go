@@ -1,7 +1,6 @@
 package system
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"io/fs"
@@ -23,8 +22,6 @@ type LogConfig struct {
 }
 
 var loggers map[string]*slog.Logger
-var testingStdout bytes.Buffer
-var testingStderr bytes.Buffer
 
 // LogInit initializes the logging system based on the provided configuration.
 // It sets up loggers for writing to stdout/stderr or file, and sets the minimum
@@ -115,8 +112,7 @@ func Log(level string, message string, params ...interface{}) {
 		// notest
 		default:
 			loggers[handler].Warn(message, params...)
-			FatalError("LogError",
-				fmt.Sprintf("last log has incorrect level: %s", level))
+			panic(fmt.Sprintf("last log has incorrect level: %s", level))
 		}
 	}
 }
