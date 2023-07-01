@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,9 +11,12 @@ import (
 // TestFatalError contains an unit test for FatalError function
 func TestFatalError(t *testing.T) {
 	var rc int
-	exitFunction = func(code int) {
+	MockOsExit = func(code int) {
 		rc = code
 	}
+	defer func() {
+		MockOsExit = os.Exit
+	}()
 
 	const codeIOError = 64
 	const codeParseError = 65
