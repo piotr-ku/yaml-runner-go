@@ -67,7 +67,6 @@ func LogInit(config LogConfig) {
 	if config.File != "" && config.File != "testing_buffer" {
 		f, err := os.OpenFile(config.File, os.O_RDWR|os.O_CREATE|os.O_APPEND,
 			logFilePermission)
-		// notest
 		if err != nil {
 			FatalError("IOError", err.Error())
 		}
@@ -109,7 +108,6 @@ func Log(level string, message string, params ...interface{}) {
 			loggers[handler].Warn(message, params...)
 		case "error":
 			loggers[handler].Error(message, params...)
-		// notest
 		default:
 			loggers[handler].Warn(message, params...)
 			panic(fmt.Sprintf("last log has incorrect level: %s", level))

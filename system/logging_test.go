@@ -3,6 +3,7 @@ package system
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -239,4 +240,25 @@ func TestSave(t *testing.T) {
 		// content test
 		assert.Contains(t, got, expected)
 	}
+}
+
+// TestLogIncorrectLevel verifies that Log function will panic when incorrect
+// log level is passed.
+func TestLogIncorrectLevel(t *testing.T) {
+	LogInit(LogConfig{File: "testing_buffer", Quiet: false, JSON: false})
+	assert.Panics(t, func() { Log("incorrect_level", "msg") })
+}
+
+func TestLogInitInvalidFilePath(t *testing.T) {
+	var rc int
+	const codeIOError = 64
+	MockOsExit = func(code int) {
+		rc = code
+	}
+	defer func() {
+		MockOsExit = os.Exit
+	}()
+
+	LogInit(LogConfig{File: "/not/existing/file", Quiet: true, JSON: false})
+	assert.Equal(t, codeIOError, rc)
 }

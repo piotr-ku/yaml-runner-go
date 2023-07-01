@@ -35,6 +35,14 @@ func TestNewCommand(t *testing.T) {
 	}
 }
 
+func TestNewCommandGetCwdError(t *testing.T) {
+	functionGetwd = func() (string, error) {
+		return "/not/existing/directory", errors.New("os.Getwd error")
+	}
+	assert.Panics(t, func() { NewCommand("echo test") })
+	functionGetwd = os.Getwd
+}
+
 func TestCommand(t *testing.T) {
 	// commands
 	var commands = []struct {

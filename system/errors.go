@@ -14,7 +14,7 @@ var returnCodes = map[string]int{
 	"ValidationError": 66,
 	"OSError":         67,
 }
-var exitFunction = os.Exit
+var MockOsExit = os.Exit
 
 // FatalError tries to write a log error and exist with the status code
 func FatalError(name string, error string) {
@@ -33,5 +33,5 @@ func FatalError(name string, error string) {
 	}
 
 	// Exit
-	exitFunction(code)
+	MockOsExit(code)
 }

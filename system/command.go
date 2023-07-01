@@ -23,13 +23,14 @@ type Command struct {
 	Error       error             // Error encountered during command execution.
 }
 
+var functionGetwd = os.Getwd
+
 // NewCommand creates a new Command with default settings.
 func NewCommand(command string) Command {
-	pwd, err := os.Getwd()
+	pwd, err := functionGetwd()
 	const timeout int = 5
-	// notest
 	if err != nil {
-		FatalError("OSError", err.Error())
+		panic(err.Error())
 	}
 	return Command{
 		Command:   command,
