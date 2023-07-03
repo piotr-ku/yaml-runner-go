@@ -1,11 +1,20 @@
 package app
 
 import (
+	"encoding/json"
+	"errors"
+	"os"
 	"testing"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/piotr-ku/yaml-runner-go/system"
 	"github.com/stretchr/testify/assert"
 )
+
+const codeIOError = 64
+const codeParseError = 65
+const codeValidationError = 66
+const testingConfigFile = "../config-testing.yaml"
 
 func TestParseYamlWithValidData(t *testing.T) {
 	// given: We define the input, which is the contents of a valid YAML file.
@@ -346,7 +355,7 @@ func TestValidateConfigWithMissingActionCommand(t *testing.T) {
 func TestLoadConfigWithoutMerging(t *testing.T) {
 	// given: We define the input, which is an example config file
 	// and empty struct to merge.
-	file := "../config-testing.yaml"
+	file := testingConfigFile
 
 	// when: We call the LoadConfig function with the input to get the result.
 	config := LoadConfigFile(file)
@@ -362,7 +371,7 @@ func TestLoadConfigWithoutMerging(t *testing.T) {
 func TestLoadConfigWithMerging(t *testing.T) {
 	// given: We define the input, which is an example config file
 	// and empty struct to merge.
-	file := "../config-testing.yaml"
+	file := testingConfigFile
 	merge := Config{
 		Daemon: Daemon{
 			Interval: "2s",
@@ -434,6 +443,85 @@ func TestLoadConfigWithMerging(t *testing.T) {
 	}
 }
 
+func TestLoadConfiFileIOError(t *testing.T) {
+	// mock os.Exit
+	var rc int
+	system.MockOsExit = func(code int) {
+		rc = code
+	}
+	defer func() {
+		system.MockOsExit = os.Exit
+	}()
+
+	// given: We define the input, which is an non-existing config file
+	file := "../non-existing-file.yaml"
+
+	// then: We check that the function will cause a fatal error
+	LoadConfigFile(file)
+
+	// then: We check that the function returns the expected config and
+	// no error.
+	assert.Equal(t, codeIOError, rc)
+}
+
+func TestLoadConfiFileParseError(t *testing.T) {
+	// mock os.Exit
+	var rc int
+	system.MockOsExit = func(code int) {
+		rc = code
+	}
+	defer func() {
+		system.MockOsExit = os.Exit
+	}()
+
+	// mock parseYaml
+	mockParseYaml = func(content []byte) (Config, error) {
+		return Config{}, errors.New("fake YAML error")
+	}
+	defer func() {
+		mockParseYaml = parseYaml
+	}()
+
+	// given: We define the input, which is an non-existing config file
+	file := testingConfigFile
+
+	// then: We check that the function will cause a fatal error
+	LoadConfigFile(file)
+
+	// then: We check that the function returns the expected config and
+	// no error.
+	assert.Equal(t, codeParseError, rc)
+}
+
+func TestLoadConfiFileValidationError(t *testing.T) {
+	// mock os.Exit
+	var rc int
+	system.MockOsExit = func(code int) {
+		rc = code
+	}
+	defer func() {
+		system.MockOsExit = os.Exit
+	}()
+
+	// mock validateConfig
+	mockValidateConfig = func(config Config) error {
+		return errors.New("fake validation error")
+	}
+	defer func() {
+		mockValidateConfig = validateConfig
+	}()
+
+	// given: We define the input, which is an non-existing config file
+	file := testingConfigFile
+
+	// then: We check that the function will cause a fatal error
+	LoadConfigFile(file)
+
+	// then: We check that the function returns the expected config and
+	// no error.
+	assert.Equal(t, codeValidationError, rc)
+}
+
 func TestConfigHashing(t *testing.T) {
 	// given: We define the input, which is an example config
 	config := Config{
@@ -448,6 +536,41 @@ func TestConfigHashing(t *testing.T) {
 
 	// then: We check if hash was calculated as expected
 	assert.Equal(t, expected, got)
+}
+
+func TestConfigHashingJsonMarshallError(t *testing.T) {
+	// mock json.Marshal()
+	mockJSONMarshal = func(v any) ([]byte, error) {
+		return []byte{}, errors.New("json.Marshall error")
+	}
+	defer func() {
+		mockJSONMarshal = json.Marshal
+	}()
+
+	// given: We define the input, which is an example config
+	config := Config{
+		Daemon:  Daemon{Interval: "1s"},
+		Logging: system.LogConfig{File: "/tmp/testing.log"},
+	}
+
+	// We check if CalculateHash function panics
+	assert.Panics(t, func() { config.CalculateHash() })
+}
+
+func TestConfigHashingAdler32Error(t *testing.T) {
+	// mock adler32Hash
+	mockAdler32Hash = func(data []byte) (uint32, error) {
+		return 0, errors.New("fake adler32 hash")
+	}
+	defer func() {
+		mockAdler32Hash = adler32Hash
+	}()
+
+	// given: We define the input, which is an empty config
+	config := Config{}
+
+	// We check if CalculateHash function panics
+	assert.Panics(t, func() { config.CalculateHash() })
 }
 
 func TestDurationValidator(t *testing.T) {
@@ -481,4 +604,28 @@ func TestDurationValidator(t *testing.T) {
 		// Compare got and expected result
 		assert.Equal(t, test.Expected, validate.Struct(test.Duration) == nil)
 	}
+}
+
+func TestDurationValidatorRegisterError(t *testing.T) {
+	// mock registerDuration
+	mockRegisterDuration = func() (*validator.Validate, error) {
+		// Create a new instance of DurationValidator.
+		v := newDurationValidator()
+
+		// Create a validator instance.
+		validate := v.validator
+
+		// Register the custom validation function "duration" with
+		// the validator.
+		return validate, errors.New("fake validator error")
+	}
+	defer func() {
+		mockRegisterDuration = registerDuration
+	}()
+
+	// given: We define the input, which is an empty Config
+	config := Config{}
+
+	// then: We check that the function will cause a fatal error
+	assert.Panics(t, func() { validateConfig(config) })
 }
