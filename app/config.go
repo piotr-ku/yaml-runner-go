@@ -29,6 +29,14 @@ import (
 // This file provides the necessary data structures for representing and
 // validating a configuration file.
 
+var (
+	mockJSONMarshal      = json.Marshal
+	mockParseYaml        = parseYaml
+	mockValidateConfig   = validateConfig
+	mockRegisterDuration = registerDuration
+	mockAdler32Hash      = adler32Hash
+)
+
 // Daemon provides a data format for daemon settings defined
 // in the configuration file.
 type Daemon struct {
@@ -81,19 +89,25 @@ func (c *Config) CalculateHash() {
 	// ignore c.Hash from calculation
 	c.Hash = 0
 	// calculate a checksum
-	jsonData, err := json.Marshal(c)
+	jsonData, err := mockJSONMarshal(c)
 	// notest
 	if err != nil {
-		system.FatalError("ParseError", err.Error())
+		panic(err.Error())
 	}
 
+	// set Adler-32 hash
+	hash, err := mockAdler32Hash(jsonData)
+	if err != nil {
+		panic(err)
+	}
+	c.Hash = hash
+}
+
+func adler32Hash(data []byte) (uint32, error) {
 	// create a new Adler-32 hash
 	hash := adler32.New()
-	_, err = hash.Write(jsonData)
-	if err != nil {
-		system.FatalError("Unknown", "create a new Adler-32 hash failed")
-	}
-	c.Hash = hash.Sum32()
+	_, err := hash.Write(data)
+	return hash.Sum32(), err
 }
 
 // LoadConfigFile loads a configuration file, validates it, and returns
@@ -104,20 +118,23 @@ func LoadConfigFile(file string) Config {
 	// notest
 	if err != nil {
 		system.FatalError("IOError", err.Error())
+		return Config{}
 	}
 
 	// parse configuration file
-	config, err := parseYaml(configContent)
+	config, err := mockParseYaml(configContent)
 	// notest
 	if err != nil {
 		system.FatalError("ParseError", err.Error())
+		return Config{}
 	}
 
 	// validate configuration file
-	validate := validateConfig(config)
+	validate := mockValidateConfig(config)
 	// notest
 	if validate != nil {
 		system.FatalError("ValidationError", validate.Error())
+		return Config{}
 	}
 
 	return config
@@ -161,18 +178,25 @@ func (*DurationValidator) Validate(fl validator.FieldLevel) bool {
 // and returns any validation errors encountered.
 // If the configuration is valid, it returns nil.
 func validateConfig(config Config) error {
+	// register duration validator
+	validate, err := mockRegisterDuration()
+	if err != nil {
+		panic(err)
+	}
+
+	return validate.Struct(config)
+}
+
+// registerDuration registers a custom validation function "duration" with
+// the validator and returns the validator instance and an error, if any.
+func registerDuration() (*validator.Validate, error) {
 	// Create a new instance of DurationValidator.
 	v := newDurationValidator()
 
 	// Create a validator instance.
 	validate := v.validator
 
-	// Register the custom validation function "duration" with the validator.
-	err := validate.RegisterValidation("duration", v.Validate)
-	if err != nil {
-		system.FatalError("ValidationError",
-			"unable to register duration function")
-	}
-
-	return validate.Struct(config)
+	// Register the custom validation function "duration" with
+	// the validator.
+	return validate, validate.RegisterValidation("duration", v.Validate)
 }
