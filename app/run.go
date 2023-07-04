@@ -16,10 +16,9 @@ var configurationHash uint32
 // It initializes logging and gathers facts before executing the actions.
 //
 // Parameters:
-// - configFile: The path to the configuration file.
-// - merge: The merge configuration to combine with the loaded configuration.
-//
-// notest
+//   - configFile: The path to the configuration file.
+//   - configArgs: The merge configuration to combine with the loaded
+//     configuration.
 func Run(configFile string, configArgs Config) Config {
 	// Default settings
 	config := Config{
