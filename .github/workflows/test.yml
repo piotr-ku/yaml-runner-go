@@ -9,7 +9,7 @@ on:
     workflow_call:
 
 env:
-  GOPATH: ${{ github.workspace }}/go
+  GOPATH: ${{ github.workspace }}/../go
   GOVERSION: "1.20"
 
 jobs:
@@ -21,17 +21,34 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: "${{ env.GOVERSION }}"
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          skip-cache: true
       - name: Install dependencies
         run: go get -t -v ./...
       - name: Build
         run: go build -v ./...
       - name: Test
         run: go test -cover ./app ./system
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - name: Govulncheck
         run: ${{ env.GOPATH }}/bin/govulncheck ./...
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+      - name: Generate test coverage
+        run: go test ./... -coverprofile=./coverage.out
+      - name: Check test coverage
+        id: coverage
+        uses: vladopajic/go-test-coverage@v2
         with:
-          version: latest
+          config: ./.testcoverage.yml
+      - name: make coverage badge
+        uses: action-badges/core@0.2.2
+        with:
+          label: coverage
+          message: ${{ steps.coverage.outputs.badge-text }}
+          message-color: ${{ steps.coverage.outputs.badge-color }}
+          file-name: coverage.svg
+          badge-branch: badges
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
