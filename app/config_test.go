@@ -627,5 +627,5 @@ func TestDurationValidatorRegisterError(t *testing.T) {
 	config := Config{}
 
 	// then: We check that the function will cause a fatal error
-	assert.Panics(t, func() { validateConfig(config) })
+	assert.Panics(t, func() { _ = validateConfig(config) })
 }
