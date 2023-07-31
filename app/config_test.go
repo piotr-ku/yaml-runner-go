@@ -16,6 +16,12 @@ const codeParseError = 65
 const codeValidationError = 66
 const testingConfigFile = "../config-testing.yaml"
 
+// TestParseYamlWithValidData tests the parseYaml function with valid data.
+//
+// It defines the input, which is the contents of a valid YAML file.
+// The function calls the parseYaml function with the input to get the result.
+// It checks that the function did not return an error. The function
+// also checks that the result object is equal to the expected data structure.
 func TestParseYamlWithValidData(t *testing.T) {
 	// given: We define the input, which is the contents of a valid YAML file.
 	input := []byte(`
@@ -53,6 +59,14 @@ func TestParseYamlWithValidData(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
+// TestParseYamlWithInvalidData tests the parseYaml function with
+// invalid YAML content.
+//
+// The given parameter is the input, which is invalid YAML content.
+// The function calls the parseYaml function with the invalid input
+// to get the result. The function checks that the parseYaml function
+// returned an error. The function also checks that the result object
+// is a zero-value Config since the input was invalid.
 func TestParseYamlWithInvalidData(t *testing.T) {
 	// given: We define the input, which is invalid YAML content.
 	input := []byte("invalid YAML content")
@@ -69,6 +83,10 @@ func TestParseYamlWithInvalidData(t *testing.T) {
 	assert.Equal(t, Config{}, result)
 }
 
+// TestParseYamlWithEmptyContent is a test function that tests the behavior
+// of the parseYaml function when it is called with an empty input. It checks
+// that the function does not return an error and that the result object is
+// a zero-value Config struct.
 func TestParseYamlWithEmptyContent(t *testing.T) {
 	// given: We define the input, which is an empty byte slice.
 	input := []byte{}
@@ -84,6 +102,8 @@ func TestParseYamlWithEmptyContent(t *testing.T) {
 	assert.Equal(t, Config{}, result)
 }
 
+// TestParseYamlWithMissingData is a test function that tests the behavior
+// of the parseYaml function when given a YAML file with missing data.
 func TestParseYamlWithMissingData(t *testing.T) {
 	// given: We define the input, which is a YAML file with missing data.
 	input := []byte(`
@@ -113,6 +133,12 @@ func TestParseYamlWithMissingData(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
+// TestParseYamlWithMalformedData is a unit test function that tests
+// the behavior of the parseYaml function when it is given malformed YAML data.
+//
+// It defines the input as a YAML file with a syntax error and then calls
+// the parseYaml function with the input to get the result. It checks
+// that the function returns an error.
 func TestParseYamlWithMalformedData(t *testing.T) {
 	// given: We define the input, which is a YAML file with a syntax error.
 	input := []byte(`
@@ -131,6 +157,8 @@ func TestParseYamlWithMalformedData(t *testing.T) {
 	assert.Error(t, err)
 }
 
+// TestParseYamlWithEmptyInput tests the parseYaml function when given
+// an empty input.
 func TestParseYamlWithEmptyInput(t *testing.T) {
 	// given: We define the input, which is an empty YAML file.
 	input := []byte("")
@@ -145,6 +173,12 @@ func TestParseYamlWithEmptyInput(t *testing.T) {
 	assert.Equal(t, 0, len(config.Actions))
 }
 
+// TestParseYamlWithInvalidInput tests the parseYaml function with
+// invalid input.
+//
+// It defines the input as an invalid YAML file and calls the parseYaml
+// function with the invalid input to get the result. Then it checks
+// that the function returns an error.
 func TestParseYamlWithInvalidInput(t *testing.T) {
 	// given: We define the input, which is an invalid YAML file.
 	input := []byte("invalid_yaml_file")
@@ -157,6 +191,11 @@ func TestParseYamlWithInvalidInput(t *testing.T) {
 	assert.Error(t, err)
 }
 
+// TestParseYamlWithValidInput tests the parseYaml function with valid input.
+//
+// It defines the input, which is a valid YAML file, and calls the parseYaml
+// function to get the result. The function checks that the parseYaml function
+// returns the expected config and no error.
 func TestParseYamlWithValidInput(t *testing.T) {
 	// given: We define the input, which is a valid YAML file.
 	input := []byte(`
@@ -197,6 +236,12 @@ func TestParseYamlWithValidInput(t *testing.T) {
 	assert.Equal(t, expectedConfig, config)
 }
 
+// TestParseYamlWithValidInputAndExtraFields tests the parseYaml function
+// with valid input and extra fields.
+//
+// The input is a valid YAML file with extra fields. This test case checks
+// that the parseYaml function correctly handles the input and returns
+// the expected configuration and no error.
 func TestParseYamlWithValidInputAndExtraFields(t *testing.T) {
 	// given: We define the input, which is a valid YAML file with extra fields.
 	input := []byte(`
@@ -228,6 +273,10 @@ func TestParseYamlWithValidInputAndExtraFields(t *testing.T) {
 	assert.Equal(t, expectedConfig, config)
 }
 
+// TestParseYamlWithInvalidYamlInput is a test function that tests the parsing
+// of invalid YAML input. It defines an invalid YAML input that is missing a
+// colon after "name". The function calls the parseYaml function with the
+// invalid input and checks that the function returns an error.
 func TestParseYamlWithInvalidYamlInput(t *testing.T) {
 	// given: We define an invalid YAML input that is missing a colon
 	// after "name".
@@ -249,6 +298,10 @@ func TestParseYamlWithInvalidYamlInput(t *testing.T) {
 	assert.Error(t, err)
 }
 
+// TestValidateConfigWithValidData is a unit test for
+// the validateConfig function.
+//
+// It tests the validation of a configuration with valid data.
 func TestValidateConfigWithValidData(t *testing.T) {
 	// given: We define the input, which is the contents of a valid YAML file.
 	input := []byte(`
@@ -271,6 +324,15 @@ func TestValidateConfigWithValidData(t *testing.T) {
 	assert.Nil(t, validated)
 }
 
+// TestValidateConfigWithMissingActions is a Go function that tests
+// the behavior of the validateConfig function when there are missing
+// actions in the configuration.
+//
+// It sets up the input by defining the contents of an invalid YAML file.
+// Then, it calls the parseYaml function with the input to obtain
+// the configuration and any potential error. Next, it validates
+// the configuration using the validateConfig function. Finally, it checks
+// that the validateConfig function does not return an error.
 func TestValidateConfigWithMissingActions(t *testing.T) {
 	// given: We define the input, which is the contents of a invalid YAML file.
 	input := []byte(`
@@ -288,6 +350,13 @@ func TestValidateConfigWithMissingActions(t *testing.T) {
 	assert.NotNil(t, validated)
 }
 
+// TestValidateConfigWithMissingFactName is a Go function that tests
+// the behavior of the validateConfig function when the fact name
+// is missing in the input YAML file.
+//
+// It defines the input as the contents of an invalid YAML file
+// and calls the parseYaml function to get the result. Then, it validates
+// the config and checks that the function did not return an error.
 func TestValidateConfigWithMissingFactName(t *testing.T) {
 	// given: We define the input, which is the contents of a invalid YAML file.
 	input := []byte(`
@@ -309,6 +378,8 @@ func TestValidateConfigWithMissingFactName(t *testing.T) {
 	assert.NotNil(t, validated)
 }
 
+// TestValidateConfigWithMissingFactCommand tests the validateConfig function
+// when the YAML input contains a missing fact command.
 func TestValidateConfigWithMissingFactCommand(t *testing.T) {
 	// given: We define the input, which is the contents of a invalid YAML file.
 	input := []byte(`
@@ -330,6 +401,8 @@ func TestValidateConfigWithMissingFactCommand(t *testing.T) {
 	assert.NotNil(t, validated)
 }
 
+// TestValidateConfigWithMissingActionCommand tests the validateConfig
+// function when there is a missing action command in the input YAML file.
 func TestValidateConfigWithMissingActionCommand(t *testing.T) {
 	// given: We define the input, which is the contents of a invalid YAML file.
 	input := []byte(`
@@ -352,6 +425,11 @@ func TestValidateConfigWithMissingActionCommand(t *testing.T) {
 	assert.NotNil(t, validated)
 }
 
+// TestLoadConfigWithoutMerging is a test function that verifies the behavior
+// of the LoadConfigWithoutMerging function.
+//
+// It tests the function by defining the input, calling the function, and
+// checking the expected output.
 func TestLoadConfigWithoutMerging(t *testing.T) {
 	// given: We define the input, which is an example config file
 	// and empty struct to merge.
@@ -368,6 +446,13 @@ func TestLoadConfigWithoutMerging(t *testing.T) {
 	assert.Equal(t, true, config.Logging.JSON)
 }
 
+// TestLoadConfigWithMerging is a test function that verifies the behavior
+// of the LoadConfigWithMerging function.
+//
+// The function takes an input config file and an empty struct to merge.
+// It loads the config file, merges it with the provided struct, and
+// then checks if the merged values match the expected values.
+// The function uses the testing.T object to report any failures.
 func TestLoadConfigWithMerging(t *testing.T) {
 	// given: We define the input, which is an example config file
 	// and empty struct to merge.
@@ -443,6 +528,13 @@ func TestLoadConfigWithMerging(t *testing.T) {
 	}
 }
 
+// TestLoadConfiFileIOError is a unit test function that tests
+// the behavior of the LoadConfigFile function when an IO error occurs.
+//
+// It mocks the os.Exit function, defines an input which is
+// a non-existing config file, and checks that the function will cause
+// a fatal error. The function then checks that the expected config
+// and no error are returned.
 func TestLoadConfiFileIOError(t *testing.T) {
 	// mock os.Exit
 	var rc int
@@ -464,6 +556,13 @@ func TestLoadConfiFileIOError(t *testing.T) {
 	assert.Equal(t, codeIOError, rc)
 }
 
+// TestLoadConfiFileParseError is a test function that tests the behavior
+// of LoadConfigFile when encountering a parse error in the config file.
+//
+// The function mocks the os.Exit function, the parseYaml function,
+// and defines the input as a non-existing config file. It then checks
+// that the LoadConfigFile function causes a fatal error and returns
+// the expected config and no error.
 func TestLoadConfiFileParseError(t *testing.T) {
 	// mock os.Exit
 	var rc int
@@ -493,6 +592,13 @@ func TestLoadConfiFileParseError(t *testing.T) {
 	assert.Equal(t, codeParseError, rc)
 }
 
+// TestLoadConfiFileValidationError is a test function that tests
+// the behavior of the LoadConfigFile function when a validation error occurs.
+//
+// This function mocks the os.Exit function, the validateConfig function,
+// and defines the input file. It then calls the LoadConfigFile function
+// and checks that it causes a fatal error. Finally, it asserts
+// that the return value of the function is the expected error code.
 func TestLoadConfiFileValidationError(t *testing.T) {
 	// mock os.Exit
 	var rc int
@@ -522,6 +628,11 @@ func TestLoadConfiFileValidationError(t *testing.T) {
 	assert.Equal(t, codeValidationError, rc)
 }
 
+// TestConfigHashing tests the hashing functionality of the Config struct.
+//
+// It creates an example config with predefined values, calculates the hash
+// of the config file, and compares it to the expected value to ensure that
+// the hash was calculated correctly.
 func TestConfigHashing(t *testing.T) {
 	// given: We define the input, which is an example config
 	config := Config{
@@ -538,6 +649,10 @@ func TestConfigHashing(t *testing.T) {
 	assert.Equal(t, expected, got)
 }
 
+// TestConfigHashingJsonMarshallError is a test function that tests
+// the scenario when there is an error in the json.Marshal() function call.
+// It mocks the json.Marshal() function and verifies if the CalculateHash()
+// function panics.
 func TestConfigHashingJsonMarshallError(t *testing.T) {
 	// mock json.Marshal()
 	mockJSONMarshal = func(v any) ([]byte, error) {
@@ -557,6 +672,9 @@ func TestConfigHashingJsonMarshallError(t *testing.T) {
 	assert.Panics(t, func() { config.CalculateHash() })
 }
 
+// TestConfigHashingAdler32Error is a test function that tests
+// the behavior of the CalculateHash method of the Config struct when
+// the adler32Hash function returns an error.
 func TestConfigHashingAdler32Error(t *testing.T) {
 	// mock adler32Hash
 	mockAdler32Hash = func(data []byte) (uint32, error) {
@@ -573,6 +691,8 @@ func TestConfigHashingAdler32Error(t *testing.T) {
 	assert.Panics(t, func() { config.CalculateHash() })
 }
 
+// TestDurationValidator is a test function that validates the Duration field
+// of the Data struct.
 func TestDurationValidator(t *testing.T) {
 	// Data represents data to validate
 	type Data struct {
@@ -606,6 +726,14 @@ func TestDurationValidator(t *testing.T) {
 	}
 }
 
+// TestDurationValidatorRegisterError tests the duration validator
+// registration error.
+//
+// It mocks the registerDuration function to return a fake validator error.
+// It creates a new instance of DurationValidator and a validator instance.
+// It registers the custom validation function "duration" with the validator.
+// It defines the input as an empty Config.
+// It checks that the function will cause a fatal error using assert.Panics.
 func TestDurationValidatorRegisterError(t *testing.T) {
 	// mock registerDuration
 	mockRegisterDuration = func() (*validator.Validate, error) {

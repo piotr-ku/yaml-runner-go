@@ -8,7 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestFatalError contains an unit test for FatalError function
+// TestFatalError tests the FatalError function.
+//
+// It verifies the behavior of the FatalError function by setting up mocked
+// dependencies and running various test cases. It checks the return code,
+// logs, and the error message printed to stderr.
 func TestFatalError(t *testing.T) {
 	var rc int
 	MockOsExit = func(code int) {
