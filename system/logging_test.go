@@ -12,7 +12,17 @@ import (
 
 const stderrLevel string = "error"
 
-// TestLogTargets contains an unit test for logTargets() function
+// TestLogTargets is a test function for testing the logTargets function.
+//
+// It tests the logTargets function by providing different test cases and
+// comparing the expected output with the actual output. The test cases
+// include different levels, file paths, and quiet flags. The function
+// initializes the logging configuration, calls the logTargets function,
+// and then compares the output with the expected output using the assert
+// package. The function ensures that the number of targets returned by
+// logTargets matches the expected number of targets. If the number of
+// targets is not zero, the function asserts that the returned targets
+// match the expected targets.
 func TestLogTargets(t *testing.T) {
 	// temporary test file
 	const testLogFile string = "/tmp/test.log"
@@ -87,8 +97,14 @@ func TestLogTargets(t *testing.T) {
 	}
 }
 
-// TestLogTextHandler verifies that Log function generate
-// a proper log string when using a text handler
+// TestLogTextHandler is a test function for testing a log text handler.
+//
+// It iterates over the log levels and performs the following steps:
+//   - Initializes log buffering with text format.
+//   - Logs a test message with a specific set of fields.
+//   - Formats the expected output based on the log level and the test message.
+//   - Retrieves the actual output from the testing buffer.
+//   - Checks if the actual output contains the expected output.
 func TestLogTextHandler(t *testing.T) {
 	for _, level := range []string{"debug", "info", "warn", "error"} {
 		// log buffering, text format
@@ -113,9 +129,13 @@ func TestLogTextHandler(t *testing.T) {
 	}
 }
 
-// TestLogTextHandler verifies that Log function generate
-// a proper log string when using a log handler
-
+// TestLogJSONHandler is a test function for testing a log JSON handler.
+//
+// This function iterates through the log levels ["debug", "info", "warn",
+// "error"] and checks if the logging output is in the expected JSON format.
+// It initializes the log buffer in JSON format, logs a message with
+// the specified log level, and compares the actual output with
+// the expected output.
 func TestLogJSONHandler(t *testing.T) {
 	for _, level := range []string{"debug", "info", "warn", "error"} {
 		// output JSON format
@@ -154,8 +174,10 @@ func TestLogJSONHandler(t *testing.T) {
 	}
 }
 
-// TestNewLogBuilder verifies that a new LogBuilder instance
-// is created correctly.
+// TestNewLogBuilder is a test function for testing the NewLogBuilder function.
+//
+// It creates a new LogBuilder instance, sets the level to "INFO", and
+// verifies that the instance is created correctly.
 func TestNewLogBuilder(t *testing.T) {
 	message := "Test message"
 	builder := NewLogBuilder(message)

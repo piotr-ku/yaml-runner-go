@@ -8,6 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestNewCommand is a test function that tests the NewCommand function.
+//
+// It initializes a command string, gets the current working directory,
+// creates a new command, sets a timeout, and performs various tests.
+// The function uses the assert.Equal function to compare the expected
+// values with the actual values returned by the NewCommand function.
+// It asserts that the command, environment length, directory, timeout,
+// shell, stdout, stderr, return code, and error values are as expected.
 func TestNewCommand(t *testing.T) {
 	command := "echo test"
 	pwd, _ := os.Getwd()
@@ -35,6 +43,15 @@ func TestNewCommand(t *testing.T) {
 	}
 }
 
+// TestNewCommandGetCwdError is a unit test for the NewCommand function
+// when there is an error in getting the current working directory.
+//
+// It mocks the functionGetwd variable to return an error and
+// a non-existing directory path. Then it asserts that calling NewCommand
+// with a specific command string will cause a panic. Finally, it restores
+// the original value of the functionGetwd variable. This test is used
+// to ensure that NewCommand handles the error in getting
+// the current working directory correctly.
 func TestNewCommandGetCwdError(t *testing.T) {
 	functionGetwd = func() (string, error) {
 		return "/not/existing/directory", errors.New("os.Getwd error")
@@ -43,6 +60,15 @@ func TestNewCommandGetCwdError(t *testing.T) {
 	functionGetwd = os.Getwd
 }
 
+// TestCommand is a test function that validates the behavior of
+// the Command function.
+//
+// It tests a set of predefined commands and verifies the return codes, stdout,
+// stderr, and error values of each command. The function uses the `NewCommand`
+// function to create a new command instance and sets the shell to `/bin/bash`.
+// It then executes the command and compares the expected values with
+// the actual values. The `assert.Equal` function is used to check that each
+// expected value matches the corresponding actual value.
 func TestCommand(t *testing.T) {
 	// commands
 	var commands = []struct {
@@ -81,6 +107,10 @@ func TestCommand(t *testing.T) {
 	}
 }
 
+// TestCommandEnviroment tests the command environment.
+//
+// It sets up a command with the given environment, executes the command, and
+// verifies the expected stdout.
 func TestCommandEnviroment(t *testing.T) {
 	command := "echo ${VAR1}"
 	// run command
@@ -92,6 +122,10 @@ func TestCommandEnviroment(t *testing.T) {
 	assert.Equal(t, "test", cmd.Stdout)
 }
 
+// TestCommandWorkingDirectory tests the command working directory.
+//
+// It sets up a command with the given working directory, executes
+// the command, and verifies the expected stdout.
 func TestCommandWorkingDirectory(t *testing.T) {
 	command := "pwd"
 	// run command
@@ -103,6 +137,10 @@ func TestCommandWorkingDirectory(t *testing.T) {
 	assert.Equal(t, "/", cmd.Stdout)
 }
 
+// TestCommandShell tests the command shell.
+//
+// It sets up a command with the given shell, executes the command, and
+// verifies the expected stdout.
 func TestCommandShell(t *testing.T) {
 	command := "echo $0"
 	// run command

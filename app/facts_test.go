@@ -70,6 +70,11 @@ var tests = []test{
 	},
 }
 
+// TestGatherFacts tests the gatherFacts function.
+//
+// This function sets log settings and clears buffers, gathers facts from the
+// given test facts, tests the stdout, tests the logs, and tests the
+// environment.
 func TestGatherFacts(t *testing.T) {
 	for _, test := range tests {
 		// Set log settings and clear buffers

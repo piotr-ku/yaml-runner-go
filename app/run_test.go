@@ -9,6 +9,12 @@ import (
 
 const emptyConfigHash = 0xe8b4543d
 
+// TestRunEmptyConfig tests the Run function with an empty configuration.
+//
+// The function initializes a Config struct with specific values for
+// the Daemon, Logging, Facts, Actions, and Hash fields. It then asserts
+// that the result of calling the Run function with a testing
+// configuration file and an empty Config struct matches the expected value.
 func TestRunEmptyConfig(t *testing.T) {
 	expect := Config{
 		Daemon: Daemon{
