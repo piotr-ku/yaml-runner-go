@@ -3,7 +3,7 @@ module github.com/piotr-ku/yaml-runner-go
 go 1.20
 
 require (
-	github.com/go-playground/validator/v10 v10.15.1
+	github.com/go-playground/validator/v10 v10.15.3
 	github.com/spf13/cobra v1.7.0
 	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	gopkg.in/yaml.v3 v3.0.1
