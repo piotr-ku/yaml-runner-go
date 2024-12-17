@@ -17,13 +17,13 @@ var returnCodes = map[string]int{
 var MockOsExit = os.Exit
 
 // FatalError tries to write a log error and exist with the status code
-func FatalError(name string, error string) {
+func FatalError(name string, msg string) {
 	// Get runtime info
 	pc, filename, line, _ := runtime.Caller(1)
 	fn := runtime.FuncForPC(pc).Name()
 
 	// Save logs
-	Log("error", fmt.Sprintf("FATAL ERROR: %s %s", name, error), "file",
+	Log("error", fmt.Sprintf("FATAL ERROR: %s %s", name, msg), "file",
 		filename, "line", line, "fn", fn)
 
 	// Get return code number

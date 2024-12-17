@@ -12,7 +12,7 @@ import (
 var daemonCmd = &cobra.Command{
 	Use:   "daemon",
 	Short: "Run actions periodically in the background",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		// Minimal logging level
 		level := "info"
 		if DebugMode {

@@ -10,7 +10,7 @@ import (
 var oneshotCmd = &cobra.Command{
 	Use:   "oneshot",
 	Short: "Runs actions ones end exit",
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		// Minimal logging level
 		level := "info"
 		if DebugMode {
