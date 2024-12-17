@@ -1,6 +1,6 @@
 module github.com/piotr-ku/yaml-runner-go
 
-go 1.20
+go 1.23.4
 
 require (
 	github.com/go-playground/validator/v10 v10.15.1
