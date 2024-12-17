@@ -574,7 +574,7 @@ func TestLoadConfiFileParseError(t *testing.T) {
 	}()
 
 	// mock parseYaml
-	mockParseYaml = func(content []byte) (Config, error) {
+	mockParseYaml = func(_ []byte) (Config, error) {
 		return Config{}, errors.New("fake YAML error")
 	}
 	defer func() {
@@ -610,7 +610,7 @@ func TestLoadConfiFileValidationError(t *testing.T) {
 	}()
 
 	// mock validateConfig
-	mockValidateConfig = func(config Config) error {
+	mockValidateConfig = func(_ Config) error {
 		return errors.New("fake validation error")
 	}
 	defer func() {
@@ -655,7 +655,7 @@ func TestConfigHashing(t *testing.T) {
 // function panics.
 func TestConfigHashingJsonMarshallError(t *testing.T) {
 	// mock json.Marshal()
-	mockJSONMarshal = func(v any) ([]byte, error) {
+	mockJSONMarshal = func(_ any) ([]byte, error) {
 		return []byte{}, errors.New("json.Marshall error")
 	}
 	defer func() {
@@ -677,7 +677,7 @@ func TestConfigHashingJsonMarshallError(t *testing.T) {
 // the adler32Hash function returns an error.
 func TestConfigHashingAdler32Error(t *testing.T) {
 	// mock adler32Hash
-	mockAdler32Hash = func(data []byte) (uint32, error) {
+	mockAdler32Hash = func(_ []byte) (uint32, error) {
 		return 0, errors.New("fake adler32 hash")
 	}
 	defer func() {
