@@ -45,8 +45,8 @@ type Daemon struct {
 
 // Config provides a data format for the configuration file.
 type Config struct {
-	Daemon  Daemon           `validate:"dive"`
-	Logging system.LogConfig `validate:"dive"`
+	Daemon  Daemon           `validate:""`
+	Logging system.LogConfig `validate:""`
 	Facts   []Fact           `validate:"dive"`          // facts slice
 	Actions []Action         `validate:"required,dive"` // actions slice
 	Hash    uint32
